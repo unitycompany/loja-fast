@@ -1,4 +1,5 @@
-import { supabase } from './supabase'
+import { supabase, SUPABASE_ENABLED } from './supabase'
+import localCategories from '../data/categories.json'
 
 const normalizeKey = (value) => {
   if (value == null) return null
@@ -18,6 +19,10 @@ const CATEGORY_COLUMN_PRIORITIES = [
 ]
 
 async function fetchProductCategoryRows() {
+  if (!SUPABASE_ENABLED) {
+    // approximate stats from local products.json is not available here, so return empty counts
+    return []
+  }
   let lastError = null
   for (const columns of CATEGORY_COLUMN_PRIORITIES) {
     try {
@@ -118,6 +123,17 @@ function applyCountsToCategory(rawCategory, stats) {
 }
 
 export async function fetchCategories({ includeEmpty = false } = {}) {
+  if (!SUPABASE_ENABLED) {
+    const stats = await buildCategoryStats()
+    const items = (Array.isArray(localCategories) ? localCategories : []).map((raw) => applyCountsToCategory(raw, stats))
+    if (includeEmpty) return items
+    return items
+      .map(cat => ({
+        ...cat,
+        children: Array.isArray(cat.children) ? cat.children.filter(ch => (ch.numberProducts || 0) > 0) : []
+      }))
+      .filter(cat => (cat.numberProducts || 0) > 0 || (Array.isArray(cat.children) && cat.children.length > 0))
+  }
   const { data, error } = await supabase.from('categories').select('id, data').order('id', { ascending: true })
   if (error) throw error
 
@@ -140,6 +156,20 @@ export async function fetchCategories({ includeEmpty = false } = {}) {
 
 // Returns the raw `data` object from each row exactly as stored in the DB
 export async function fetchCategoriesRaw({ includeEmpty = true } = {}) {
+  if (!SUPABASE_ENABLED) {
+    const stats = await buildCategoryStats()
+    const items = (Array.isArray(localCategories) ? localCategories : []).map((raw) => ({ id: raw.id || raw.slug, data: applyCountsToCategory(raw, stats) }))
+    if (includeEmpty) return items
+    return items
+      .map(row => ({
+        id: row.id,
+        data: {
+          ...row.data,
+          children: Array.isArray(row.data.children) ? row.data.children.filter(ch => (ch.numberProducts || 0) > 0) : []
+        }
+      }))
+      .filter(row => (row.data.numberProducts || 0) > 0 || (Array.isArray(row.data.children) && row.data.children.length > 0))
+  }
   const { data, error } = await supabase.from('categories').select('id, data').order('id', { ascending: true })
   if (error) throw error
 
@@ -163,6 +193,12 @@ export async function fetchCategoriesRaw({ includeEmpty = true } = {}) {
 }
 
 export async function fetchCategoryById(id) {
+  if (!SUPABASE_ENABLED) {
+    const stats = await buildCategoryStats()
+    const raw = (Array.isArray(localCategories) ? localCategories : []).find(c => (c.id || c.slug) === id)
+    if (!raw) throw new Error('Categoria não encontrada')
+    return { id: raw.id || raw.slug, ...applyCountsToCategory(raw, stats) }
+  }
   const { data, error } = await supabase.from('categories').select('id, data').eq('id', id).single()
   if (error) throw error
 

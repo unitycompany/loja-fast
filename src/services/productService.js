@@ -1,4 +1,5 @@
-import { supabase, resolveImageUrl } from './supabase'
+import { supabase, resolveImageUrl, SUPABASE_ENABLED } from './supabase'
+import localProducts from '../data/products.json'
 import { localBrandLogo } from '../utils/image'
 
 async function hydrateProducts(products = []) {
@@ -13,6 +14,24 @@ async function hydrateProducts(products = []) {
 export async function fetchProducts({ page = 1, perPage = 9, orderBy = 'created_at', order = 'desc', q = null, brand = null, category = null, subcategory = null } = {}) {
   const from = (page - 1) * perPage
   const to = from + perPage - 1
+
+  // Fallback to local data when Supabase is disabled
+  if (!SUPABASE_ENABLED) {
+    let rows = Array.isArray(localProducts) ? [...localProducts] : []
+    const text = (q && String(q).trim().toLowerCase()) || null
+    if (text) rows = rows.filter(p => String(p.name || '').toLowerCase().includes(text) || String(p.sku || '').toLowerCase().includes(text))
+    if (brand) rows = rows.filter(p => String(p.brand || p.brandName || '').toLowerCase() === String(brand).toLowerCase())
+    if (category) rows = rows.filter(p => String(p.category || '').toLowerCase() === String(category).toLowerCase())
+    if (subcategory) rows = rows.filter(p => String(p.subcategory || p.sub_category || '').toLowerCase() === String(subcategory).toLowerCase())
+    rows.sort((a,b) => {
+      const av = a[orderBy] || a.created_at || 0
+      const bv = b[orderBy] || b.created_at || 0
+      return (order === 'asc' ? 1 : -1) * (av > bv ? 1 : av < bv ? -1 : 0)
+    })
+    const pageSlice = rows.slice(from, to + 1)
+    const items = await hydrateProducts(pageSlice)
+    return { data: items, count: rows.length }
+  }
 
   let query = supabase.from('products').select('*', { count: 'exact' })
 
@@ -126,12 +145,17 @@ export async function fetchProducts({ page = 1, perPage = 9, orderBy = 'created_
  * Fetch single product by slug
  */
 export async function fetchProductBySlug(slug) {
+  if (!SUPABASE_ENABLED) {
+    const row = (Array.isArray(localProducts) ? localProducts : []).find(p => p.slug === slug)
+    const [product] = await hydrateProducts(row ? [row] : [])
+    if (!product) throw new Error('Produto não encontrado')
+    return product
+  }
   const { data, error } = await supabase
     .from('products')
     .select('*')
     .eq('slug', slug)
     .single()
-
   if (error) throw error
   const [product] = await hydrateProducts([data])
   return product
@@ -141,6 +165,27 @@ export async function fetchProductBySlug(slug) {
  * Fetch top N products (recent) or optionally filter by category
  */
 export async function fetchTopProducts({ limit = 10, category = null, categories = null, subcategory = null } = {}) {
+  if (!SUPABASE_ENABLED) {
+    let rows = Array.isArray(localProducts) ? [...localProducts] : []
+    const keys = new Set()
+    if (category) keys.add(String(category).toLowerCase())
+    if (subcategory) keys.add(String(subcategory).toLowerCase())
+    if (Array.isArray(categories)) categories.filter(Boolean).forEach(k => keys.add(String(k).toLowerCase()))
+    if (keys.size > 0) {
+      rows = rows.filter(p => {
+        const cat = String(p.category || '').toLowerCase()
+        const sub = String(p.subcategory || p.sub_category || '').toLowerCase()
+        return keys.has(cat) || keys.has(sub)
+      })
+    }
+    rows.sort((a,b) => {
+      const at = a.created_at ? new Date(a.created_at).getTime() : 0
+      const bt = b.created_at ? new Date(b.created_at).getTime() : 0
+      return bt - at
+    })
+    const trimmed = rows.slice(0, limit)
+    return hydrateProducts(trimmed)
+  }
   const keys = new Set()
   if (category) keys.add(category)
   if (subcategory) keys.add(subcategory)
@@ -212,14 +257,18 @@ export async function fetchTopProducts({ limit = 10, category = null, categories
  */
 export async function fetchProductsBySlugs(slugs = []) {
   if (!Array.isArray(slugs) || slugs.length === 0) return []
+  if (!SUPABASE_ENABLED) {
+    const rows = (Array.isArray(localProducts) ? localProducts : []).filter(p => slugs.includes(p.slug))
+    const items = await hydrateProducts(rows)
+    const bySlug = new Map(items.map(i => [i.slug, i]))
+    return slugs.map(s => bySlug.get(s)).filter(Boolean)
+  }
   const { data, error } = await supabase
     .from('products')
     .select('*')
     .in('slug', slugs)
-
   if (error) throw error
   const items = await hydrateProducts(data ?? [])
-  // preserve order of slugs
   const bySlug = new Map(items.map(i => [i.slug, i]))
   return slugs.map(s => bySlug.get(s)).filter(Boolean)
 }
