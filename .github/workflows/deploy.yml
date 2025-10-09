@@ -32,8 +32,16 @@ jobs:
 
       - name: Build
         env:
-          # Set the base path to the repository name for GitHub Pages
+          # Base path for GitHub Pages
           BASE_PATH: /loja-fast/
+          # Optional: set origin if you use a custom domain (else defaults to github.io)
+          SITE_ORIGIN: ${{ secrets.SITE_ORIGIN }}
+          # Enable dynamic sitemap via Supabase (optional, will fallback to local JSON if missing)
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Frontend Supabase configuration (inlined at build time)
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Upload artifact

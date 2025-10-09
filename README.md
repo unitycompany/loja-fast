@@ -1,16 +1,42 @@
-# React + Vite
+## Loja Fast — React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+E-commerce estático com integração ao Supabase, deploy automático via GitHub Pages e sitemap dinâmico.
 
-Currently, two official plugins are available:
+### Desenvolvimento local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Instalar dependências: `npm ci`
+- Rodar em dev: `npm run dev`
 
-## React Compiler
+### Build
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- O build gera robots.txt e sitemap automaticamente antes do Vite: `npm run build`
 
-## Expanding the ESLint configuration
+### Deploy (GitHub Pages)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Workflow em `.github/workflows/deploy.yml` publica a pasta `dist` a cada push na branch `main`.
+- A base do Vite é configurada por `BASE_PATH` (no Pages: `/loja-fast/`). O Router usa `import.meta.env.BASE_URL`.
+
+### Sitemap dinâmico
+
+O script `scripts/generate-sitemap.mjs` tenta ler produtos e categorias do Supabase usando variáveis de ambiente (secrets no GitHub Actions):
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Se os secrets não estiverem configurados, o script usa os arquivos locais `src/data/products.json` e `src/data/categories.json`.
+
+Variáveis opcionais:
+
+- `SITE_ORIGIN` (ex.: `https://unitycompany.github.io` ou seu domínio)
+- `BASE_PATH` (ex.: `/loja-fast/`)
+
+### Estrutura relevante
+
+- `scripts/generate-robots.mjs`: gera `public/robots.txt` com o link correto do sitemap
+- `scripts/generate-sitemap.mjs`: gera `public/sitemap.xml` com home, categorias e produtos
+- `src/utils/url.js`: helper `go()` para navegação respeitando `BASE_URL`
+
+### Dicas
+
+- Configure `Settings → Pages → Source: GitHub Actions` no repositório.
+- Para sitemap dinâmico, defina os secrets `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` no repositório.

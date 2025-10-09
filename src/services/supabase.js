@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 // Valores vindo do Vite (.env) - adicione VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no seu .env
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+export const SUPABASE_ENABLED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   // Não lançar erro aqui para não quebrar builds em ambientes que ainda não configuraram variáveis.
@@ -11,7 +12,49 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   // throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY')
 }
 
-export const supabase = createClient(SUPABASE_URL ?? '', SUPABASE_ANON_KEY ?? '')
+function createSupabaseStub() {
+  const makeQuery = () => {
+    const q = {
+      select() { return q },
+      order() { return q },
+      limit() { return q },
+      eq() { return q },
+      ilike() { return q },
+      neq() { return q },
+      single() { return q },
+      range() { return q },
+      update() { return q },
+      insert() { return q },
+      delete() { return q },
+  then(resolve) { return resolve({ data: [], error: null }) },
+      catch() { return q },
+      finally() { return q },
+    }
+    return q
+  }
+  return {
+    from() { return makeQuery() },
+    storage: {
+      from() {
+        return {
+          getPublicUrl() { return { data: { publicUrl: null }, error: new Error('Supabase disabled') } },
+          createSignedUrl() { return Promise.resolve({ data: { signedURL: null }, error: new Error('Supabase disabled') }) },
+          upload: async () => ({ data: null, error: new Error('Supabase disabled') }),
+        }
+      }
+    },
+    auth: {
+      signInWithPassword: async () => ({ data: null, error: new Error('Supabase disabled') }),
+      signOut: async () => ({ error: null }),
+      getSession: async () => ({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe(){} } } }),
+    }
+  }
+}
+
+export const supabase = SUPABASE_ENABLED
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : createSupabaseStub()
 
 // Nome do bucket que usaremos para imagens de produto. Ajuste se você usar outro nome.
 export const PRODUCT_IMAGES_BUCKET = 'products'
