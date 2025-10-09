@@ -1,5 +1,6 @@
 import { supabase, SUPABASE_ENABLED } from './supabase'
 import localCategories from '../data/categories.json'
+import localProducts from '../data/products.json'
 
 const normalizeKey = (value) => {
   if (value == null) return null
@@ -20,8 +21,24 @@ const CATEGORY_COLUMN_PRIORITIES = [
 
 async function fetchProductCategoryRows() {
   if (!SUPABASE_ENABLED) {
-    // approximate stats from local products.json is not available here, so return empty counts
-    return []
+    if (!Array.isArray(localProducts)) return []
+
+    return localProducts.map((product) => {
+      const category = product.category ?? product.category_slug ?? null
+      const sub = product.subcategory ?? product.sub_category ?? null
+      const path = product.category_path || product.categoryPath || null
+      let categoryPath = path
+      if (!categoryPath && category && sub) {
+        categoryPath = [category, sub]
+      }
+      return {
+        category,
+        category_slug: product.category_slug ?? null,
+        subcategory: sub,
+        sub_category: product.sub_category ?? null,
+        category_path: categoryPath ?? null,
+      }
+    })
   }
   let lastError = null
   for (const columns of CATEGORY_COLUMN_PRIORITIES) {
