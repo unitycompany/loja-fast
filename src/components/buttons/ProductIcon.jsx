@@ -23,6 +23,10 @@ const Container = styled.button`
     }
 
     &:hover { background-color: ${({ color }) => color ? `${color}30` : '#000000'}; border: 1px solid ${({ color }) => color ? `${color}40` : '#000000'}; box-shadow: 0 6px 12px rgba(0,0,0,0.06); }
+
+    @media (hover: none), (pointer: coarse) {
+        &:hover { background-color: ${({ color }) => color ? `${color}20` : '#000000'}; border: 1px solid ${({ color }) => color ? `${color}10` : '#999999'}; box-shadow: none; }
+    }
     &:active { transform: scale(0.97); }
     &:focus-visible { outline: 2px solid ${({ color }) => color || '#0ea5e9'}; outline-offset: 2px; }
 

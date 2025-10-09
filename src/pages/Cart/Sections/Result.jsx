@@ -25,17 +25,13 @@ const Title = styled.div`
     background-color: var(--color--white-2);
 
     @media (max-width: 768px) {
-        padding: 5%;    
+        padding: 2.5%;    
     }
 
     & h2 {
-        font-size: 22px;
+        font-size: clamp(1.1rem, 0.95rem + 1vw, 1.5rem);
         font-weight: 400;
         color: var(--color--black-2);
-
-        @media (max-width: 768px) {
-            font-size: 18px;    
-        }
     }
 `
 
@@ -49,7 +45,7 @@ const Resume = styled.div`
     gap: 20px;
 
     @media (max-width: 768px) {
-        padding: 0% 5%;    
+        padding: 0% 2.5%;    
     }
 
     & div {
@@ -93,7 +89,7 @@ const Alert = styled.div`
     gap: 12px;
 
     @media (max-width: 768px) {
-        padding: 12px 5%;    
+        padding: 12px 2.5%;    
     }
 
     & p {

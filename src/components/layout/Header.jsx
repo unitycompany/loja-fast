@@ -19,17 +19,16 @@ const Container = styled.header`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: var(--border-bottom);
+    border-bottom: var(--border-bottom);
     position: fixed;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     z-index: 999;
     background-color: var(--color--white-2);
-    transition: box-shadow 180ms ease, backdrop-filter 180ms ease, background-color 180ms ease;
+    transition: backdrop-filter 180ms ease, background-color 180ms ease;
 
     &.scrolled {
-        box-shadow: 0 8px 24px rgba(0,0,0,0.06);
         backdrop-filter: saturate(120%) blur(4px);
         background-color: rgba(255,255,255,0.9);
     }
@@ -46,7 +45,7 @@ const Logo = styled.picture`
     justify-content: center;
     padding: 0;
     padding: 10px 18px;
-    box-shadow: var(--border-right);
+    border-right: var(--border-right);
     cursor: pointer;
 
     @media (max-width: 768px) {

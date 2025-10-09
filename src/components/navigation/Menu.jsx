@@ -83,7 +83,7 @@ const Header = styled.header`
     cursor: pointer;
 
     @media (max-width: 768px) {
-        padding: 5%;    
+        padding: 2.5%;    
     }
 
     & span {

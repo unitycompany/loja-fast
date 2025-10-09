@@ -120,7 +120,6 @@ export default function Home() {
                 <HeroBanners />
                 <Content data-aos="fade-up" data-aos-delay="80">
                     <Categorys />
-                    <Adsense ItemsAdsense={'disclosure'} />
                     {homeCategories.map((category, index) => {
                         const keys = [
                             category.slug || category.id,
@@ -140,7 +139,8 @@ export default function Home() {
                             </Fragment>
                         )
                     })}
-
+                    <Adsense ItemsAdsense={'disclosure'} />
+                    
                 </Content>
             </Container>
         </>

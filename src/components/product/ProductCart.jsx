@@ -50,19 +50,14 @@ const Remove = styled.button`
 `
 
 const Image = styled.div`
-    width: 120px;
-    height: 120px;
+    width: var(--product-thumb-size);
+    height: var(--product-thumb-size);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     background-color: var(--color--gray-5);
     box-shadow: var(--border-full);
-
-    @media (max-width: 768px) {
-        height: 100px;
-        width: 120px;
-    }
 
     & img {
         width: 100%;
@@ -135,18 +130,13 @@ const Company = styled.div`
     width: auto;
 
     & img {
-        width: 22px;
-        height: 22px;
+        width: var(--brand-logo-thumb-size);
+        height: var(--brand-logo-thumb-size);
         object-fit: contain;
         border-radius: 42px;
         padding: 4px;
         box-shadow: var(--border-full);
-
-        @media (max-width: 768px) {
-            width: 16px;
-            height: 16px;
-            padding: 2px;
-        }
+        padding: 4px;
     }
 
     & span {

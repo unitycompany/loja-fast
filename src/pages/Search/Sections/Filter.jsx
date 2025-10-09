@@ -152,8 +152,8 @@ const BrandItem = styled.label`
 `;
 
 const BrandLogo = styled.div`
-    width: 22px;
-    height: 22px;
+    width: var(--brand-logo-thumb-size);
+    height: var(--brand-logo-thumb-size);
     background: var(--color--gray-5);
     display: flex;
     align-items: center;
@@ -231,9 +231,10 @@ const SubCategory = styled.div`
     width: calc(100% - 16px);
     margin-top: 4px;
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    white-space: nowrap;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    white-space: normal;
 `;
 
 export default function Filter({ open, setOpen }) {
@@ -386,7 +387,16 @@ export default function Filter({ open, setOpen }) {
         })
     };
 
-    const handleSubcategorySelect = (category, sub) => {
+    const handleSubcategorySelect = (category, sub, { clear } = { clear: false }) => {
+        if (!sub || clear) {
+            setSelectedSubcategory(null)
+            const params = new URLSearchParams(searchParams.toString())
+            params.delete('subcategory')
+            params.delete('page')
+            setSearchParams(params)
+            return
+        }
+
         const id = sub?.id
         const slug = sub?.slug
         const next = selectedSubcategory === id ? null : id
@@ -403,37 +413,53 @@ export default function Filter({ open, setOpen }) {
             <Section>
                 <SectionTitle>Categorias</SectionTitle>
                 <CategoryList>
-                    {(Array.isArray(categories) ? categories : []).map(category => (
-                        <div key={category.id}>
-                            <CategoryItem
-                                onClick={() => handleCategorySelect(category)}
-                                style={{ background: selectedCategory === category.id ? 'var(--color--white-2)' : 'transparent' }}
-                            >
-                                <CategoryLeft>
-                                    <div>{category.name}</div>
-                                </CategoryLeft>
-                                <CountBadge>{category.numberProducts || 0}</CountBadge>
-                            </CategoryItem>
+                    {(Array.isArray(categories) ? categories : []).map(category => {
+                        const isActiveCategory = selectedCategory === category.id
+                        const subcategories = Array.isArray(category.children) ? category.children : []
+                        return (
+                            <div key={category.id}>
+                                <CategoryItem
+                                    onClick={() => handleCategorySelect(category)}
+                                    style={{ background: isActiveCategory ? 'var(--color--white-2)' : 'transparent' }}
+                                >
+                                    <CategoryLeft>
+                                        <div>{category.name}</div>
+                                    </CategoryLeft>
+                                    <CountBadge>{category.numberProducts || 0}</CountBadge>
+                                </CategoryItem>
 
-                            {selectedCategory === category.id && (category.children || []).length > 0 && (
-                                <div>
-                                    {category.children.map(sub => (
-                                        <SubCategory key={sub.id}>
-                                            <CategoryItem
-                                                onClick={() => handleSubcategorySelect(category, sub)}
-                                                style={{ background: selectedSubcategory === sub.id ? 'var(--color--white-2)' : 'transparent' }}
-                                            >
-                                                <CategoryLeft>
-                                                    <div>{sub.name}</div>
-                                                </CategoryLeft>
-                                                <CountBadge>{sub.numberProducts || 0}</CountBadge>
-                                            </CategoryItem>
-                                        </SubCategory>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                {isActiveCategory && subcategories.length > 0 && (
+                                    <SubCategory>
+                                        <CategoryItem
+                                            onClick={() => handleSubcategorySelect(category, null, { clear: true })}
+                                            style={{ background: selectedSubcategory ? 'transparent' : 'var(--color--white-2)' }}
+                                        >
+                                            <CategoryLeft>
+                                                <div>Todos</div>
+                                            </CategoryLeft>
+                                            <CountBadge>{category.numberProducts || 0}</CountBadge>
+                                        </CategoryItem>
+
+                                        {subcategories.map(sub => {
+                                            const isSelected = selectedSubcategory === sub.id
+                                            return (
+                                                <CategoryItem
+                                                    key={sub.id}
+                                                    onClick={() => handleSubcategorySelect(category, sub)}
+                                                    style={{ background: isSelected ? 'var(--color--white-2)' : 'transparent' }}
+                                                >
+                                                    <CategoryLeft>
+                                                        <div>{sub.name}</div>
+                                                    </CategoryLeft>
+                                                    <CountBadge>{sub.numberProducts || 0}</CountBadge>
+                                                </CategoryItem>
+                                            )
+                                        })}
+                                    </SubCategory>
+                                )}
+                            </div>
+                        )
+                    })}
                 </CategoryList>
             </Section>
             <Section>

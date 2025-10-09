@@ -1,4 +1,4 @@
-import { CaretRightIcon, HouseIcon } from "@phosphor-icons/react/dist/ssr";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
 import styled from "styled-components";
 import { go } from "../../utils/url";
 
@@ -7,15 +7,33 @@ const Container = styled.nav`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    white-space: nowrap; /* keep everything on one line */
+    white-space: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        white-space: normal;
+        overflow-x: visible;
+        padding: 0 12px;
+    }
 
     & ul {
         display: flex;
         align-items: center;
         justify-content: flex-start;
         gap: 2px;
-        flex-wrap: nowrap; /* no wrapping across lines */
-        overflow: hidden; /* enable truncation in the last item */
+        flex-wrap: nowrap;
+        overflow: hidden;
+
+        @media (max-width: 768px) {
+            flex-wrap: wrap;
+            row-gap: 6px;
+        }
 
         & li {
             display: flex;
@@ -26,7 +44,15 @@ const Container = styled.nav`
             font-weight: 400;
             line-height: 100%;
             cursor: pointer;
-            white-space: nowrap; /* each crumb is a single line */
+            white-space: nowrap;
+            flex-shrink: 0;
+
+            @media (max-width: 768px) {
+                font-size: 12px;
+                white-space: normal;
+                flex: 0 1 auto;
+                max-width: 100%;
+            }
 
             &:hover {
                 & span {
@@ -40,7 +66,7 @@ const Container = styled.nav`
                 color: var(--color--black-2);
 
                 @media (max-width: 768px) {
-                    font-size: 14px;
+                    font-size: 12px;
                 }
             }
 
@@ -52,28 +78,35 @@ const Container = styled.nav`
                 color: var(--color--black-2);
 
                 @media (max-width: 768px) {
-                    font-size: 12px;
+                    font-size: 10px;
                 }
             }
 
-            /* Allow the last crumb (current page) to shrink and show ellipsis */
             &:last-child {
                 flex: 1 1 auto;
-                min-width: 0; /* allow overflow hidden to take effect */
-                justify-content: flex-start; /* left-align inside */
+                min-width: 0;
+                justify-content: flex-start;
+                cursor: default;
+                pointer-events: none;
 
                 & span {
                     max-width: 100%;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
-                    display: inline-block; /* needed for max-width + ellipsis */
+                    display: inline-block;
+
+                    @media (max-width: 768px) {
+                        white-space: normal;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                    }
                 }
             }
         }
     }
 `
-
 export default function Breadcrumbs({
     pages = []
 }) {
@@ -86,8 +119,16 @@ export default function Breadcrumbs({
                     </li>
                     {pages.map((page, index) => {
                         const isLast = index === pages.length - 1
+                        const handleClick = () => {
+                            if (isLast) return
+                            go(`/${page.link}`)
+                        }
                         return (
-                            <li key={index} onClick={() => go(`/${page.link}`)}>
+                            <li
+                                key={index}
+                                onClick={handleClick}
+                                aria-current={isLast ? "page" : undefined}
+                            >
                                 <CaretRightIcon weight="regular" />
                                 <span title={page.route}>{page.route}</span>
                             </li>

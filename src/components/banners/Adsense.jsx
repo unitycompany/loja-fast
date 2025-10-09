@@ -1,52 +1,72 @@
 import styled from "styled-components";
 import { useEffect, useState } from 'react'
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay, A11y } from "swiper/modules"
+import "swiper/css"
 import { fetchBannersByType } from '../../services/bannerService'
 import { resolveImageUrl } from '../../services/supabase'
 
-const Container = styled.section`
+const BannerItem = styled.picture`
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: row;
+    cursor: pointer;
+    overflow: hidden;
     width: 100%;
-    height: auto;
-    padding: 2.5%;
-    gap: 16px;
+    flex: 0 0 auto;
 
-    @media (max-width: 768px){
-        flex-direction: column;
+    @media (min-width: 769px) {
+        width: auto;
+        max-width: 100%;
     }
 
-    & picture {
-        height: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        overflow: hidden;
-        width: 100%;
-
-        &:hover {
-
-            & img {
-                transform: scale(1.01);
-            }
-        }
-
+    &:hover {
         & img {
-            height: 100%;
-            width: 100%;
-            object-fit: cover;
-            object-position: center;
-            transition: all .4s ease-in-out;
+            transform: scale(1.01);
         }
     }
+
+    & img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: all .4s ease-in-out;
+    }
+`
+
+const CarouselWrapper = styled.section`
+    width: 100%;
+    padding: 2.5%;
+    box-sizing: border-box;
+
+    .swiper {
+        width: 100%;
+    }
+
+    .swiper-slide {
+        display: flex;
+        height: auto;
+        width: auto;
+    }
+
+    @media (max-width: 768px) {
+        .swiper-slide {
+            width: 100% !important;
+        }
+    }
+
 `
 
 export default function Adsense({
     ItemsAdsense = [], // can be an array or a string type (e.g. 'disclosure')
 }) {
     const [items, setItems] = useState(Array.isArray(ItemsAdsense) ? ItemsAdsense : [])
+    const [isMobile, setIsMobile] = useState(() => {
+        if (typeof window === 'undefined') return false
+        return window.matchMedia('(max-width: 768px)').matches
+    })
 
     useEffect(() => {
         let mounted = true
@@ -74,21 +94,68 @@ export default function Adsense({
         return () => { mounted = false }
     }, [ItemsAdsense])
 
+    useEffect(() => {
+        if (typeof window === 'undefined') return undefined
+
+        const media = window.matchMedia('(max-width: 768px)')
+        const handleChange = (event) => setIsMobile(event.matches)
+
+        setIsMobile(media.matches)
+
+        if (media.addEventListener) {
+            media.addEventListener('change', handleChange)
+        } else if (media.addListener) {
+            media.addListener(handleChange)
+        }
+
+        return () => {
+            if (media.removeEventListener) {
+                media.removeEventListener('change', handleChange)
+            } else if (media.removeListener) {
+                media.removeListener(handleChange)
+            }
+        }
+    }, [])
+    if (!items.length) return null
+
+    const slidesPerView = isMobile ? 1 : 'auto'
+    const spaceBetween = isMobile ? 16 : 20
+    const autoplay = isMobile && items.length > 1 ? { delay: 4500, disableOnInteraction: false } : false
+    const loop = isMobile && items.length > 1
+    const allowTouchMove = isMobile
+
     return (
-        <>
-            <Container>
+        <CarouselWrapper>
+            <Swiper
+                modules={[Autoplay, A11y]}
+                slidesPerView={slidesPerView}
+                spaceBetween={spaceBetween}
+                allowTouchMove={allowTouchMove}
+                loop={loop}
+                autoplay={autoplay}
+                watchOverflow
+                a11y={{ enabled: true }}
+                breakpoints={{
+                    769: {
+                        slidesPerView: 'auto',
+                        allowTouchMove: false,
+                    },
+                }}
+            >
                 {items.map((adsense, index) => (
-                    <picture 
-                        key={index} 
-                        style={{ height: adsense.height }} 
-                        onClick={() => window.location.href = `/${adsense.rota}`}>
-                            <img 
-                                src={adsense.image} 
-                                alt={adsense.alt} 
+                    <SwiperSlide key={index}>
+                        <BannerItem
+                            style={{ height: adsense.height }}
+                            onClick={() => window.location.href = `/${adsense.rota}`}
+                        >
+                            <img
+                                src={adsense.image}
+                                alt={adsense.alt}
                             />
-                    </picture>
+                        </BannerItem>
+                    </SwiperSlide>
                 ))}
-            </Container>
-        </>
+            </Swiper>
+        </CarouselWrapper>
     )
 }

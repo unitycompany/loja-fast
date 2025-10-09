@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import { N8N_WEBHOOK_URL, WHATS_TARGET_E164, WHATS_MSG } from '../../lib/constants'
@@ -22,6 +22,8 @@ const Overlay = styled.div`
   justify-content: center;
   z-index: 1000;
   animation: ${fadeIn} 160ms ease;
+  padding: 24px;
+  overflow-y: auto;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -39,6 +41,8 @@ const Modal = styled.div`
   flex-direction: column;
   gap: 16px;
   animation: ${popIn} 180ms ease;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -112,6 +116,25 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
   const { items } = useCart()
   const [submitting, setSubmitting] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm()
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined
+    if (!open) return undefined
+
+    const originalOverflow = document.body.style.overflow
+    const originalPaddingRight = document.body.style.paddingRight
+
+    const scrollBarCompensation = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (scrollBarCompensation > 0) {
+      document.body.style.paddingRight = `${scrollBarCompensation}px`
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+      document.body.style.paddingRight = originalPaddingRight
+    }
+  }, [open])
 
   const sourceItems = Array.isArray(itemsOverride) ? itemsOverride : items
   const cartRows = useMemo(()=> (Array.isArray(sourceItems) ? sourceItems : []).map(i => ({

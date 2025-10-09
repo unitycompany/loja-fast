@@ -1,7 +1,7 @@
 import { HeartIcon, MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 import styled, { css } from "styled-components";
-import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 import { fetchBrands } from '../../services/brandService'
 import { resolveImageUrl } from '../../services/supabase'
 
@@ -317,7 +317,6 @@ export default function SearchContainer({
     const [brands, setBrands] = useState([])
     const [brandsLoading, setBrandsLoading] = useState(true)
     const [inputValue, setInputValue] = useState('')
-    const [, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
     useEffect(() => {
         let mounted = true
@@ -345,14 +344,12 @@ export default function SearchContainer({
         return () => { mounted = false }
     }, [brands])
 
-    // Debounced input filtering for suggestions
-    const [debouncedInput, setDebouncedInput] = useState(inputValue)
-    useEffect(() => {
-        const t = setTimeout(() => setDebouncedInput(inputValue.trim()), 200)
-        return () => clearTimeout(t)
-    }, [inputValue])
-
-    const filteredBrands = (debouncedInput ? (brands || []).filter(b => (b.companyName || b.name || '').toLowerCase().includes(debouncedInput.toLowerCase())) : brands || []).slice(0, 6)
+    const featuredBrands = useMemo(() => (
+        (brands || [])
+            .slice()
+            .sort((a, b) => (b.numberProducts || 0) - (a.numberProducts || 0))
+            .slice(0, 6)
+    ), [brands])
     useEffect(() => {
         function onKey(e) {
             if (e.key === 'Escape' && isOpen) onClose();
@@ -409,9 +406,9 @@ export default function SearchContainer({
                                             </li>
                                         ))
                                     ) : (
-                                        (filteredBrands || []).map((brand) => (
+                                        (featuredBrands || []).map((brand) => (
                                             <li 
-                                                key={brand.id}
+                                                key={brand.id || brand.slug || brand.companyName}
                                                 onClick={() => { navigate(`/pesquisa?brand=${encodeURIComponent(brand.slug || brand.companyName || brand.id)}`); onClose() }}
                                             >
                                                 <div>

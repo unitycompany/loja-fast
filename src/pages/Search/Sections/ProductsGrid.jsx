@@ -41,17 +41,13 @@ const Texts = styled.div`
     padding: 2.5%;
 
     @media (max-width: 768px) {
-        padding: 5%;
+        padding: 2.5%;
     }
 
     & h1 {
-        font-size: 32px;
+        font-size: clamp(1.4rem, 1rem + 2vw, 2.2rem);
         font-weight: 500;
         line-height: 100%;
-
-        @media (max-width: 768px) {
-            font-size: 26px;
-        }
     }
 `
 
@@ -116,7 +112,7 @@ const Content = styled.div`
 
     @media (max-width: 768px) {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        padding: 5%;
+        padding: 2.5%;
     }
 `
 
@@ -168,18 +164,28 @@ export default function ProductsGrid({
     const [currentPage, setCurrentPage] = useState(initialPage);
     const containerRef = useRef(null);
 
+    const scrollToGridStart = React.useCallback(() => {
+        if (typeof window === 'undefined') return
+        if (containerRef.current && typeof containerRef.current.getBoundingClientRect === 'function') {
+            const rect = containerRef.current.getBoundingClientRect()
+            const scrollTop = window.scrollY + rect.top
+            const headerOffset = window.innerWidth <= 768 ? 72 : 96
+            window.scrollTo({ top: Math.max(0, scrollTop - headerOffset), behavior: 'smooth' })
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+    }, [])
+
     // sync with URL if it changes externally (back/forward or direct link)
     useEffect(() => {
         const pageFromUrl = parseInt(searchParams.get('page') || '1', 10) || 1;
         if (pageFromUrl !== currentPage) {
             setCurrentPage(Math.min(Math.max(1, pageFromUrl), totalPages));
             // scroll into view when URL-driven change happens
-            if (containerRef.current) {
-                containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            scrollToGridStart();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
+    }, [searchParams, scrollToGridStart]);
     const perPage = 9;
     const [totalPages, setTotalPages] = React.useState(1)
     const [visibleProducts, setVisibleProducts] = React.useState([])
@@ -299,11 +305,7 @@ export default function ProductsGrid({
         }
         if (replace) setSearchParams(nextParams, { replace: true }); else setSearchParams(nextParams);
         // scroll the container into view (go to start) after page change
-        if (containerRef.current) {
-            containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        scrollToGridStart();
     }
 
     const categoryParam = searchParams.get('category')

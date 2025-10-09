@@ -38,17 +38,13 @@ const Texts = styled.div`
     padding: 2.5%;
 
     @media (max-width: 768px) {
-        padding: 5%;
+        padding: 2.5%;
     }
 
     & h1 {
-        font-size: 32px;
+        font-size: clamp(1.4rem, 1rem + 2vw, 2.2rem);
         font-weight: 500;
         line-height: 100%;
-
-        @media (max-width: 768px) {
-            font-size: 26px;
-        }
     }
 `
 
@@ -65,7 +61,7 @@ const Content = styled.div`
 
     @media (max-width: 768px) {
         flex-direction: column;
-        padding: 0 5%;
+        padding: 0 2.5%;
     }
 `
 

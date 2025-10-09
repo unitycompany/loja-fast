@@ -32,6 +32,13 @@
     0 0.4px 0 0 var(--color--gray-3),   /* baixo */
     0 -0.4px 0 0 var(--color--gray-3);  /* cima */;
 
+  /* Dimensões padrão */
+  --product-card-image-height: 200px;
+  --product-thumb-size: 120px;
+  --product-detail-image-size: clamp(360px, 40vw, 520px);
+  --brand-logo-size: clamp(88px, 18vw, 160px);
+  --brand-logo-thumb-size: 32px;
+
   /* Tipografia */
   --font-sans: "Gilroy", "Inter", "Roboto", system-ui, sans-serif;
   --font-serif: "Merriweather", Georgia, serif;
@@ -71,4 +78,23 @@
   --container-md: 768px;
   --container-lg: 1024px;
   --container-xl: 1280px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --text-4xl: 2rem;
+    --text-3xl: 1.7rem;
+    --text-2xl: 1.35rem;
+    --text-xl: 1.125rem;
+    --text-lg: 1.05rem;
+    --text-base: 0.95rem;
+    --text-sm: 0.85rem;
+    --text-xs: 0.72rem;
+
+    --product-card-image-height: 150px;
+    --product-thumb-size: 96px;
+    --product-detail-image-size: clamp(220px, 65vw, 320px);
+    --brand-logo-size: clamp(64px, 28vw, 110px);
+    --brand-logo-thumb-size: 24px;
+  }
 }

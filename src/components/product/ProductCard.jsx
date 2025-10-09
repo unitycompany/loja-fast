@@ -36,6 +36,14 @@ const Container = styled.div`
         border-color: #00000030;
     }
 
+    @media (hover: none), (pointer: coarse) {
+        &:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #00000020;
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         transition: none;
         &:hover { transform: none; box-shadow: var(--border-full); }
@@ -44,13 +52,15 @@ const Container = styled.div`
 
 const Image = styled.div`
     width: 100%;
-    height: 200px;
+    height: var(--product-card-image-height);
+    min-height: var(--product-card-image-height);
     position: relative;
     cursor: pointer;
-
-    @media (max-width: 768px) {
-        height: 150px;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--color--white-2);
 
     & img {
         width: 100%;
@@ -61,6 +71,12 @@ const Image = styled.div`
 
     ${Container}:hover & img {
         transform: scale(1.03);
+    }
+
+    @media (hover: none), (pointer: coarse) {
+        ${Container}:hover & img {
+            transform: none;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -83,6 +99,11 @@ const Actions = styled.div`
     transition: opacity 200ms ease, transform 200ms ease;
 
     ${Container}:hover & {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @media (hover: none), (pointer: coarse) {
         opacity: 1;
         transform: translateY(0);
     }

@@ -22,26 +22,32 @@ const Wrapper = styled.div`
 
   @media (max-width: 768px){
     flex-direction: column;  
-    padding: 5%;
+    padding: 2.5%;
   }
 `
 
 const Left = styled.div`
   width: 50%;
   background-color: var(--color--gray-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  box-sizing: border-box;
+  height: var(--product-detail-image-size);
+  max-height: 70vh;
 
   @media (max-width: 768px){
     width: 100%;  
+  max-height: 60vh;
   }
 
   img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    max-height: 100%;
     display: block;
-    object-fit: cover;
-  }
-  @media (max-width: 768px) {
-    flex: 0 0 180px;
+    object-fit: contain;
   }
 `
 
@@ -53,11 +59,10 @@ const Right = styled.div`
   justify-content: center;
   gap: 28px;
   /* Tie brand/logo sizes to title using a CSS variable */
-  --title-size: 30px;
+  --title-size: clamp(1.5rem, 1.1rem + 1.8vw, 2rem);
 
   @media (max-width: 768px){
     width: 100%;  
-    --title-size: 22px;
   }
 `
 
@@ -67,17 +72,21 @@ const Brand = styled.div`
   align-items: flex-start;
   width: 100%;
   
-  & .brand-logo { 
+  & .brand-logo {
     box-shadow: var(--border-full);
-    padding: 2px;
-    
-    img { 
-        /* Size logo relative to the title size */
-        height: calc(var(--title-size) * 1.8);
+    padding: 4px;
+    background: var(--color--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        height: var(--brand-logo-size);
+        max-height: var(--brand-logo-size);
         width: auto;
-        max-width: calc(var(--title-size) * 3.6);
-        object-fit: contain; 
-    } 
+        max-width: min(180px, 40vw);
+        object-fit: contain;
+    }
   }
 
   .brand-info { 
@@ -118,10 +127,6 @@ const Title = styled.h1`
   font-size: var(--title-size);
   line-height: 1;
   font-weight: 500;
-
-  @media (max-width: 768px){
-    font-size: 22px;  
-  }
 `
 
 const ShortDesc = styled.div`
@@ -301,36 +306,86 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
   const { addItem } = useCart()
   const [quoteOpen, setQuoteOpen] = useState(false)
   // support both old fields and new shape
-  const imagesRaw = product?.images || (product?.image ? [product.image] : [])
-  // Always prefer the first image as the main image
-  const images = (imagesRaw || []).map(i => (typeof i === 'string' ? i : (i?.url || ''))).filter(Boolean)
+  const [brandsList, setBrandsList] = useState(null)
+
+  const needsBrandLookup = useMemo(() => {
+    if (!product) return false
+    if (typeof product.brand === 'string') return true
+    const brandObject = product.brand && typeof product.brand === 'object' ? product.brand : null
+    const hasEmbeddedName = Boolean(product.brandName || brandObject?.companyName || brandObject?.name || brandObject?.title)
+    const hasEmbeddedLogo = Boolean(product.imageBrand || brandObject?.imageCompany || brandObject?.logo || brandObject?.image)
+    return !(hasEmbeddedName && hasEmbeddedLogo)
+  }, [product])
+
+  const images = useMemo(() => {
+    const list = product?.images || (product?.image ? [product.image] : [])
+    return (list || []).map((i) => (typeof i === 'string' ? i : (i?.url || ''))).filter(Boolean)
+  }, [product])
 
   // resolve brand: product.brand may be an object, a string id/slug/name, or missing
-  let brand = product?.brand || { name: product?.brandName, logo: product?.imageBrand }
+  const normalizedBrand = useMemo(() => {
+      const entries = Array.isArray(brandsList) ? brandsList : []
+      const matchByKey = (value) => {
+        if (!value) return null
+        const key = String(value).toLowerCase()
+        return entries.find((b) => {
+          const id = b?.id ? String(b.id).toLowerCase() : null
+          const slug = b?.slug ? String(b.slug).toLowerCase() : null
+          const company = b?.companyName ? String(b.companyName).toLowerCase() : null
+          return key === id || key === slug || key === company
+        }) || null
+      }
 
-  // load brands list to support lookups when brand is a string
-  const [brandsList, setBrandsList] = useState([])
+      let name = product?.brandName || null
+      let logoValue = product?.imageBrand || null
+      const brandData = product?.brand
+
+      const ensureFromEntry = (entry) => {
+        if (!entry) return
+        if (!name) name = entry.companyName || entry.name || name
+        if (!logoValue) logoValue = entry.imageCompany || entry.logo || entry.image
+      }
+
+      if (typeof brandData === 'string') {
+        const entry = matchByKey(brandData)
+        if (entry) {
+          name = entry.companyName || name || brandData
+          logoValue = entry.imageCompany || logoValue
+        } else {
+          name = name || brandData
+        }
+      } else if (brandData && typeof brandData === 'object') {
+        const directName = brandData.companyName || brandData.name || brandData.title || name
+        if (directName) name = directName
+        logoValue = brandData.imageCompany || brandData.logo || brandData.image || logoValue
+        ensureFromEntry(matchByKey(brandData.slug || brandData.id || directName))
+      } else {
+        ensureFromEntry(matchByKey(name))
+      }
+
+      return { name: name || null, logo: logoValue || null }
+    }, [product, brandsList])
+
+  // load brands list to support lookups when brand data is incomplete
   useEffect(() => {
     let mounted = true
-    // includeEmpty: true to ensure lookup works even if brand has 0-count due to timing
-    fetchBrands({ includeEmpty: true }).then(b => { if (mounted) setBrandsList(Array.isArray(b) ? b : []) }).catch(console.error)
+    if (!needsBrandLookup || Array.isArray(brandsList)) {
+      return () => { mounted = false }
+    }
+    fetchBrands({ includeEmpty: true })
+      .then((b) => {
+        if (mounted && !Array.isArray(brandsList)) {
+          setBrandsList(Array.isArray(b) ? b : [])
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        if (mounted && !Array.isArray(brandsList)) {
+          setBrandsList([])
+        }
+      })
     return () => { mounted = false }
-  }, [])
-
-  // if brand is a string, try to find in brands list
-  if (brand && typeof brand === 'string'){
-    const key = brand.toLowerCase()
-    const found = brandsList.find(b => b.id === key || b.slug === key || (b.companyName && b.companyName.toLowerCase() === key))
-    if (found) brand = { name: found.companyName, logo: found.imageCompany }
-    else brand = { name: brand, logo: null }
-  }
-
-  // if brand is an object but missing logo, try to lookup by name/id/slug
-  if (brand && typeof brand === 'object' && !brand.logo && brand.name){
-    const key = String(brand.name).toLowerCase()
-    const found = brandsList.find(b => b.id === key || b.slug === key || (b.companyName && b.companyName.toLowerCase() === key))
-    if (found) brand.logo = found.imageCompany
-  }
+  }, [needsBrandLookup, brandsList])
 
   // resolve product and brand image URLs (support storage paths)
   const [resolvedImages, setResolvedImages] = useState([])
@@ -338,26 +393,43 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
 
   useEffect(() => {
     let mounted = true
-    async function load() {
-      const imgs = []
-      for (const i of (images || [])) {
-        try { imgs.push(await resolveImageUrl(i)) } catch (e) { imgs.push(i) }
+    async function loadImages() {
+      if (!images.length) {
+        if (mounted) setResolvedImages([])
+        return
       }
-      if (mounted) setResolvedImages(imgs)
-      // brand logo (prefer explicit product.imageBrand, then brand.logo)
-      const logoCandidate = (product && product.imageBrand) || (brand && brand.logo)
-      if (logoCandidate) {
+      const next = await Promise.all((images || []).map(async (source) => {
         try {
-          const rl = await resolveImageUrl(logoCandidate)
-          if (mounted) setBrandLogo(rl)
-        } catch (e) {
-          if (mounted) setBrandLogo(logoCandidate)
+          const resolved = await resolveImageUrl(source)
+          return resolved || source
+        } catch {
+          return source
         }
+      }))
+      if (mounted) setResolvedImages(next)
+    }
+    loadImages()
+    return () => { mounted = false }
+  }, [images])
+
+  useEffect(() => {
+    let mounted = true
+    const candidate = normalizedBrand?.logo
+    if (!candidate) {
+      setBrandLogo(null)
+      return () => { mounted = false }
+    }
+    async function loadLogo() {
+      try {
+        const resolved = await resolveImageUrl(candidate)
+        if (mounted) setBrandLogo(resolved || candidate)
+      } catch {
+        if (mounted) setBrandLogo(candidate)
       }
     }
-    load()
+    loadLogo()
     return () => { mounted = false }
-  }, [images, product && product.imageBrand, brand && brand.logo])
+  }, [normalizedBrand?.logo])
 
   // Unidades: normalizar para apenas UMA unidade por produto
   // Fonte aceita: product.units (novo) ou product.unidade (legado). Sempre escolher 1 preferida.
@@ -492,20 +564,20 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
     <Breadcrumbs pages={[{ route: categoryLabel, link: `search?category=${encodeURIComponent(product.category)}` }, { route: product.name, link: product.slug }]} />
         <Infos>
             {/* Só mostra o Brand se tiver logo */}
-            {(brandLogo || brand?.logo) && (
+      {(brandLogo || normalizedBrand?.logo) && (
                 <Brand>
                     <div className="brand-logo">
-                        <img src={brandLogo || brand.logo} alt={brand?.name || 'Marca'} />
+            <img src={brandLogo || normalizedBrand?.logo} alt={normalizedBrand?.name || 'Marca'} />
                     </div>
                     <aside className="product-info">
             <Category>{categoryLabel}</Category>
-                        <Title>{product.name}</Title>
+            <Title>{product.name}</Title>
                     </aside>
                 </Brand>
             )}
             
             {/* Se não tiver logo, mostra apenas categoria e título */}
-            {!brandLogo && !brand?.logo && (
+      {!brandLogo && !normalizedBrand?.logo && (
                 <aside className="product-info">
           <Category>{categoryLabel}</Category>
                     <Title>{product.name}</Title>
@@ -587,8 +659,8 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
                 productSlug: product.slug,
                 name: product.name,
                 image: resolvedImages[0] || images[0],
-                imageBrand: brandLogo || (brand && typeof brand === 'object' ? brand.logo : null),
-                brandName: brand?.name || product.brandName,
+                imageBrand: brandLogo || normalizedBrand?.logo,
+                brandName: normalizedBrand?.name || product.brandName,
                 measure: selectedMeasure?.id,
                 measureLabel: selectedMeasure?.label,
                 units: unitsSelection,
@@ -626,8 +698,8 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
             productSlug: product.slug,
             name: product.name,
             image: resolvedImages[0] || images[0],
-            imageBrand: brandLogo || (brand && typeof brand === 'object' ? brand.logo : null),
-            brandName: brand?.name || product.brandName,
+            imageBrand: brandLogo || normalizedBrand?.logo,
+            brandName: normalizedBrand?.name || product.brandName,
             measure: selectedMeasure?.id,
             measureLabel: selectedMeasure?.label,
             units: [{ key: selectedUnit?.key, label: selectedUnit?.label, baseQuantity: selectedUnit?.baseQuantity }],
@@ -652,7 +724,7 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
           sku: resolvedSku,
           gtin: resolvedGtin,
           mpn: resolvedMpn,
-          brand: brand?.name ? { '@type': 'Brand', name: brand.name } : undefined,
+          brand: normalizedBrand?.name ? { '@type': 'Brand', name: normalizedBrand.name } : undefined,
           offers: {
             '@type': 'Offer',
             priceCurrency: 'BRL',

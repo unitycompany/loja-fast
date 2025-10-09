@@ -15,7 +15,7 @@ const Container = styled.section`
   gap: 24px;
 
   @media (max-width: 768px){
-    padding: 5%;  
+    padding: 2.5%;  
   }
 
   & h3 {

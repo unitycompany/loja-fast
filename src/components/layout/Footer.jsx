@@ -22,7 +22,7 @@ const Container = styled.footer`
     background-color: var(--color--white);
 
     @media (max-width: 768px) {
-        padding: 5%;    
+        padding: 2.5%;    
         gap: 28px;
     }
 `
