@@ -1,0 +1,40 @@
+[
+  {
+    "urlMobile": "https://cdn.dooca.store/158832/files/agora-somos-fast-sistemas-2-4.jpg?v=1744392201",
+    "urlDesktop": "https://cdn.dooca.store/158832/files/horizontal-banner-para-site-1-1.png?v=1758228318",
+    "alt": "Perfis normatizados com preço especial",
+    "href": "/search?q=perfis",
+    "type": "home"
+  },
+  {
+    "urlMobile": "https://cdn.dooca.store/158832/files/mega-feirao-setembro-2025-banner-para-site.jpg?v=1758228165",
+    "urlDesktop": "https://cdn.dooca.store/158832/files/banner-quartzolit-desktop-2.png?v=1738686122",
+    "alt": "Placas drywall para obra rápida",
+    "href": "/search?q=placas",
+    "type": "home"
+  },
+  {
+    "urlMobile": "https://cdn.dooca.store/158832/files/banner-biancogres-mobile-1.png?v=1738686163",
+    "urlDesktop": "https://cdn.dooca.store/158832/files/banner-biacongres-desktop-2.png?v=1738686152",
+    "alt": "Soluções em acústica para ambientes",
+    "href": "/search?q=acustica",
+    "type": "home"
+  },
+
+
+  
+  {
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReM-v836NILf6BCCZ6MjnBGJePbp42AOxJ3Q&s",
+    "alt": "AdSense 1",
+    "height": "400px",
+    "rota": "promocoes",
+    "type": "disclosure"
+  },
+  {
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReM-v836NILf6BCCZ6MjnBGJePbp42AOxJ3Q&s",
+    "alt": "AdSense 1",
+    "height": "400px",
+    "rota": "promocoes",
+    "type": "disclosure"
+  }
+]

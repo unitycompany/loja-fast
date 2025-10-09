@@ -1,0 +1,40 @@
+{
+  "name": "loja-fast",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+  "prebuild": "node ./scripts/generate-robots.mjs && node ./scripts/generate-sitemap.mjs",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@supabase/supabase-js": "^2.58.0",
+    "aos": "^2.3.4",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.18",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-hook-form": "^7.64.0",
+    "react-icons": "^5.5.0",
+    "react-number-format": "^5.4.4",
+    "react-router-dom": "^7.9.1",
+    "styled-components": "^6.1.19",
+    "swiper": "^12.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.3",
+    "csv-parse": "^5.6.0",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.4.0",
+    "vite": "^7.1.7"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "drywall": {
+    "match": ["drywall", "drywall produtos", "acessórios drywall", "perfil drywall", "fixações drywall"],
+    "subcategory": {
+      "placas": "placas-drywall",
+      "acessórios": "acessorios-drywall",
+      "fixações": "fixacao-drywall",
+      "perfis": "perfil-drywall"
+    }
+  },
+  "steel-frame": {
+    "match": ["steel frame", "steel-frame produtos", "cimenticia", "perfil steel"],
+    "subcategory": {
+      "perfil": "perfil-steel",
+      "treliça": "trelica-steel",
+      "placa": "placa-steel",
+      "acabamento": "acabamento-steel",
+      "complementos": "complementos-steel",
+      "pisos": "pisos-lajes-steel"
+    }
+  },
+  "argamassas-impermeabilizantes": {
+    "match": ["argamassa", "argamassas e impermeabilização", "rejunte", "impermeabilizantes"],
+    "subcategory": {
+      "argamassa": "argamassa",
+      "rejunte": "rejuntes",
+      "impermeabilizante": "impermeabilizantes",
+      "cimento": "cimentos",
+      "vinílico": "colocacao-vinilicos"
+    }
+  },
+  "forros-removiveis": {
+    "match": ["forro", "forros", "forro modular"],
+    "subcategory": {
+      "pvc": "pvc",
+      "isopor": "isopor",
+      "mineral": "mineral",
+      "madeira": "madeira",
+      "lã de vidro": "la-vidro"
+    }
+  },
+  "pisos": {
+    "match": ["piso", "vinílico"],
+    "subcategory": {
+      "vinílico": "vinilicos",
+      "laje": "pisos-lajes"
+    }
+  },
+  "ferramentas": {
+    "match": ["ferramenta", "parafuso", "bucha", "chumbador", "pino"],
+    "subcategory": {
+      "manual": "ferramentas-manuais",
+      "elétrica": "ferramentas-eletricas"
+    }
+  },
+  "telhados": {
+    "match": ["telha", "top shingle", "galvalume"],
+    "subcategory": {
+      "shingle": "telhas-shingle",
+      "metálica": "telhas-metalicas"
+    }
+  },
+  "acustica": {
+    "match": ["acústica", "forro acústico", "nexacústica", "ecophon"],
+    "subcategory": {
+      "lã": "la-isolamento",
+      "espuma": "espumas-acusticas",
+      "revestimento": "revestimento-acustico"
+    }
+  }
+}

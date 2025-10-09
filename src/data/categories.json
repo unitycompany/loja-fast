@@ -1,0 +1,150 @@
+[
+  {
+    "id": "drywall",
+    "name": "Drywall",
+    "slug": "drywall",
+    "description": "Placas, perfis, fixações e acessórios para sistemas em drywall.",
+    "image": "/imagens/categorias/drywall.jpg",
+    "icon": "DrywallIcon",
+    "wishlist": true,
+    "numberProducts": 200,
+    "parent": null,
+    "children": [
+      { "id": "placas-drywall", "name": "Placas", "slug": "placas-drywall", "description": "Placas de gesso acartonado para paredes e forros.", "parent": "drywall", "children": [] },
+      { "id": "acabamentos-drywall", "name": "Acabamentos", "slug": "acabamentos-drywall", "description": "Acabamentos para sistemas drywall.", "parent": "drywall", "children": [] },
+      { "id": "acessorios-drywall", "name": "Acessórios", "slug": "acessorios-drywall", "description": "Acessórios e complementos para instalação de drywall.", "parent": "drywall", "children": [] },
+      { "id": "fixacao-drywall", "name": "Fixação", "slug": "fixacao-drywall", "description": "Parafusos e elementos de fixação para drywall.", "parent": "drywall", "children": [] },
+      { "id": "perfil-drywall", "name": "Perfis", "slug": "perfil-drywall", "description": "Perfis metálicos para estruturas de drywall.", "parent": "drywall", "children": [] }
+    ]
+  },
+  {
+    "id": "steel-frame",
+    "name": "Steel Frame",
+    "slug": "steel-frame",
+    "description": "Perfis, placas e complementos normatizados para construção em steel frame.",
+    "image": "/imagens/categorias/steel-frame.jpg",
+    "icon": "SteelFrameIcon",
+    "wishlist": true,
+    "numberProducts": 120,
+    "parent": null,
+    "children": [
+      { "id": "complementos-steel", "name": "Complementos", "slug": "complementos-steel", "description": "Componentes complementares para sistemas em steel frame.", "parent": "steel-frame", "children": [] },
+      { "id": "acabamento-steel", "name": "Acabamento", "slug": "acabamento-steel", "description": "Acabamentos e detalhes finais para steel frame.", "parent": "steel-frame", "children": [] },
+      { "id": "placa-steel", "name": "Placas", "slug": "placa-steel", "description": "Placas cimentícias e OSB aplicáveis em steel frame.", "parent": "steel-frame", "children": [] },
+      { "id": "perfil-steel", "name": "Perfis", "slug": "perfil-steel", "description": "Perfis normatizados para steel frame.", "parent": "steel-frame", "children": [] },
+      { "id": "pisos-lajes-steel", "name": "Pisos e Lajes", "slug": "pisos-lajes-steel", "description": "Estruturas para pisos e lajes em steel frame.", "parent": "steel-frame", "children": [] },
+      { "id": "trelica-steel", "name": "Treliça", "slug": "trelica-steel", "description": "Treliças metálicas para sistemas steel frame.", "parent": "steel-frame", "children": [] }
+    ]
+  },
+  {
+    "id": "acustica",
+    "name": "Acústica",
+    "slug": "acustica",
+    "description": "Soluções em isolamento e revestimento acústico.",
+    "image": "/imagens/categorias/acustica.jpg",
+    "icon": "AcusticaIcon",
+    "wishlist": true,
+    "numberProducts": 80,
+    "parent": null,
+    "children": [
+      { "id": "la-isolamento", "name": "Lã de Isolamento", "slug": "la-isolamento", "description": "Materiais isolantes para desempenho acústico.", "parent": "acustica", "children": [] },
+      { "id": "espumas-acusticas", "name": "Espumas", "slug": "espumas-acusticas", "description": "Espumas acústicas para absorção de ruídos.", "parent": "acustica", "children": [] },
+      { "id": "revestimento-acustico", "name": "Revestimento Acústico", "slug": "revestimento-acustico", "description": "Placas e acabamentos para controle de som.", "parent": "acustica", "children": [] }
+    ]
+  },
+  {
+    "id": "pisos",
+    "name": "Pisos",
+    "slug": "pisos",
+    "description": "Pisos vinílicos e lajes para ambientes comerciais e residenciais.",
+    "image": "/imagens/categorias/pisos.jpg",
+    "icon": "PisoIcon",
+    "wishlist": true,
+    "numberProducts": 60,
+    "parent": null,
+    "children": [
+      { "id": "vinilicos", "name": "Vinílicos", "slug": "vinilicos", "description": "Pisos vinílicos para acabamento moderno.", "parent": "pisos", "children": [] },
+      { "id": "pisos-lajes", "name": "Pisos e Lajes", "slug": "pisos-lajes", "description": "Soluções estruturais de pisos e lajes.", "parent": "pisos", "children": [] }
+    ]
+  },
+  {
+    "id": "argamassas-impermeabilizantes",
+    "name": "Argamassas e Impermeabilizantes",
+    "slug": "argamassas-impermeabilizantes",
+    "description": "Linha completa de argamassas, rejuntes, cimentos e impermeabilizantes.",
+    "image": "/imagens/categorias/argamassas.jpg",
+    "icon": "ArgamassaIcon",
+    "wishlist": true,
+    "numberProducts": 150,
+    "parent": null,
+    "children": [
+      { "id": "argamassa", "name": "Argamassa", "slug": "argamassa", "description": "Argamassas para diferentes aplicações.", "parent": "argamassas-impermeabilizantes", "children": [] },
+      { "id": "rejuntes", "name": "Rejuntes", "slug": "rejuntes", "description": "Rejuntes para pisos e revestimentos.", "parent": "argamassas-impermeabilizantes", "children": [] },
+      { "id": "impermeabilizantes", "name": "Impermeabilizantes", "slug": "impermeabilizantes", "description": "Produtos para impermeabilização de superfícies.", "parent": "argamassas-impermeabilizantes", "children": [] },
+      { "id": "cimentos", "name": "Cimentos", "slug": "cimentos", "description": "Cimentos especiais para construção.", "parent": "argamassas-impermeabilizantes", "children": [] },
+      { "id": "colocacao-vinilicos", "name": "Colocação de Vinílicos", "slug": "colocacao-vinilicos", "description": "Materiais para instalação de pisos vinílicos.", "parent": "argamassas-impermeabilizantes", "children": [] }
+    ]
+  },
+  {
+    "id": "telhados",
+    "name": "Telhados",
+    "slug": "telhados",
+    "description": "Telhas e sistemas completos para cobertura.",
+    "image": "/imagens/categorias/telhados.jpg",
+    "icon": "TelhadoIcon",
+    "wishlist": true,
+    "numberProducts": 90,
+    "parent": null,
+    "children": [
+      { "id": "telhas-shingle", "name": "Telhas Shingle", "slug": "telhas-shingle", "description": "Cobertura moderna com telhas shingle.", "parent": "telhados", "children": [] },
+      { "id": "telhas-metalicas", "name": "Telhas Metálicas", "slug": "telhas-metalicas", "description": "Coberturas resistentes com telhas metálicas.", "parent": "telhados", "children": [] }
+    ]
+  },
+  {
+    "id": "esquadrias",
+    "name": "Esquadrias",
+    "slug": "esquadrias",
+    "description": "Portas prontas e esquadrias para projetos modernos.",
+    "image": "/imagens/categorias/esquadrias.jpg",
+    "icon": "EsquadriaIcon",
+    "wishlist": true,
+    "numberProducts": 70,
+    "parent": null,
+    "children": [
+      { "id": "porta-pronta", "name": "Porta Pronta", "slug": "porta-pronta", "description": "Portas prontas para instalação rápida.", "parent": "esquadrias", "children": [] }
+    ]
+  },
+  {
+    "id": "forros-removiveis",
+    "name": "Forros Removíveis",
+    "slug": "forros-removiveis",
+    "description": "Forros removíveis em diversos materiais para projetos versáteis.",
+    "image": "/imagens/categorias/forros.jpg",
+    "icon": "ForroIcon",
+    "wishlist": true,
+    "numberProducts": 110,
+    "parent": null,
+    "children": [
+      { "id": "la-vidro", "name": "Lã de Vidro", "slug": "la-vidro", "description": "Forros removíveis em lã de vidro.", "parent": "forros-removiveis", "children": [] },
+      { "id": "pvc", "name": "PVC", "slug": "pvc", "description": "Forros removíveis em PVC.", "parent": "forros-removiveis", "children": [] },
+      { "id": "isopor", "name": "Isopor", "slug": "isopor", "description": "Forros removíveis em isopor.", "parent": "forros-removiveis", "children": [] },
+      { "id": "mineral", "name": "Mineral", "slug": "mineral", "description": "Forros removíveis em mineral.", "parent": "forros-removiveis", "children": [] },
+      { "id": "madeira", "name": "Madeira", "slug": "madeira", "description": "Forros removíveis em madeira.", "parent": "forros-removiveis", "children": [] }
+    ]
+  },
+  {
+    "id": "ferramentas",
+    "name": "Ferramentas",
+    "slug": "ferramentas",
+    "description": "Ferramentas manuais e elétricas para construção civil.",
+    "image": "/imagens/categorias/ferramentas.jpg",
+    "icon": "FerramentaIcon",
+    "wishlist": true,
+    "numberProducts": 95,
+    "parent": null,
+    "children": [
+      { "id": "ferramentas-manuais", "name": "Manuais", "slug": "ferramentas-manuais", "description": "Ferramentas manuais para uso em obra.", "parent": "ferramentas", "children": [] },
+      { "id": "ferramentas-eletricas", "name": "Elétricas", "slug": "ferramentas-eletricas", "description": "Ferramentas elétricas para construção e acabamentos.", "parent": "ferramentas", "children": [] }
+    ]
+  }
+]

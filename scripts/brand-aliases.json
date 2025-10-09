@@ -1,0 +1,14 @@
+{
+  "brasilit": ["brasilit", "BRASILIT"],
+  "placo": ["placo", "PLACO"],
+  "quartzolit": ["quartzolit", "QUARTZOLIT"],
+  "ecophon": ["ecophon", "ECOPHON"],
+  "owa": ["owa", "OWA"],
+  "walsywa": ["walsywa", "WALSYWA", "WCT-WALSYWA", "WCT", "WCT WALSYWA"],
+  "tyvek": ["tyvek", "TYVEK"],
+  "vertex": ["vertex", "VERTEX", "vertex-r131", "VERTEX R131"],
+  "gn": ["gn", "GN"],
+  "adfors": ["adfors", "ADFORS"],
+  "nova-metalica": ["nova metálica", "nova metalica", "nova-metalica", "NOVA METALICA", "NOVA METÁLICA"],
+  "outros": ["outros", "OUTROS"]
+}

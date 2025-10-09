@@ -1,0 +1,98 @@
+[
+  {
+    "id": "unid",
+    "name": "Unidade",
+    "slug": "unidade",
+    "description": "Venda por unidade individual."
+  },
+  {
+    "id": "rolo",
+    "name": "Rolo",
+    "slug": "rolo",
+    "description": "Produto comercializado em rolos."
+  },
+  {
+    "id": "kg",
+    "name": "Quilograma",
+    "slug": "kg",
+    "description": "Venda por peso em quilogramas."
+  },
+  {
+    "id": "peca",
+    "name": "Peça",
+    "slug": "peca",
+    "description": "Produto vendido em peças avulsas."
+  },
+  {
+    "id": "cento",
+    "name": "Cento",
+    "slug": "cento",
+    "description": "Venda agrupada em cento (100 unidades)."
+  },
+  {
+    "id": "vara",
+    "name": "Vara",
+    "slug": "vara",
+    "description": "Produto medido e vendido em varas."
+  },
+  {
+    "id": "outra",
+    "name": "Outra",
+    "slug": "outra",
+    "description": "Unidade de medida alternativa."
+  },
+  {
+    "id": "nd",
+    "name": "N/D",
+    "slug": "nd",
+    "description": "Unidade não definida."
+  },
+  {
+    "id": "saco",
+    "name": "Saco",
+    "slug": "saco",
+    "description": "Produto comercializado em sacos."
+  },
+  {
+    "id": "caixa",
+    "name": "Caixa",
+    "slug": "caixa",
+    "description": "Venda agrupada em caixas."
+  },
+  {
+    "id": "placa",
+    "name": "Placa",
+    "slug": "placa",
+    "description": "Produto em formato de placa."
+  },
+  {
+    "id": "balde",
+    "name": "Balde",
+    "slug": "balde",
+    "description": "Produto embalado em baldes."
+  },
+  {
+    "id": "ml",
+    "name": "Mililitro",
+    "slug": "ml",
+    "description": "Venda por volume em mililitros."
+  },
+  {
+    "id": "cx",
+    "name": "CX",
+    "slug": "cx",
+    "description": "Abreviação de caixa, utilizado em embalagens."
+  },
+  {
+    "id": "pacote",
+    "name": "Pacote",
+    "slug": "pacote",
+    "description": "Produto embalado em pacotes."
+  },
+  {
+    "id": "metro",
+    "name": "Metro",
+    "slug": "metro",
+    "description": "Venda por metro linear."
+  }
+]

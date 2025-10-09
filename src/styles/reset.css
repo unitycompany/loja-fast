@@ -1,0 +1,155 @@
+/* reset.css — universal reset (Android, iOS e desktop) */
+
+/* 1) Box model e espaçamentos */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* 2) HTML/base (comportamentos mobile úteis) */
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent; /* iOS: remove highlight */
+  scroll-behavior: smooth;                  /* respeitado, exceto reduced-motion */
+}
+body {
+  min-height: 100%;
+  line-height: 1.5;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell,
+    "Noto Sans", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  color: inherit;
+}
+
+/* 3) Tipografia básica */
+h1, h2, h3, h4, h5, h6 {
+  font: inherit;        /* remove tamanhos/pesos padrão dos headings */
+}
+b, strong {
+  font-weight: bolder;  /* mantém semântica de ênfase */
+}
+small { font-size: 80%; }
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sub { bottom: -0.25em; }
+sup { top: -0.5em; }
+code, kbd, samp, pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 1em;
+}
+
+/* 4) Links e listas */
+a {
+  color: inherit;
+  text-decoration: none;
+  background-color: transparent;
+}
+ol, ul, menu {
+  list-style: none;
+}
+
+/* 5) Mídia e elementos embutidos */
+img, svg, video, canvas, audio, iframe, embed, object {
+  display: block;
+  max-width: 100%;
+}
+img, video { height: auto; }
+svg { fill: currentColor; }
+picture { display: contents; }
+
+/* 6) Tabelas */
+table { border-collapse: collapse; border-spacing: 0; width: 100%; }
+caption { text-align: left; }
+
+/* 7) Formulários */
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  outline: none; /* usaremos :focus-visible abaixo */
+}
+button, [type="button"], [type="submit"], [type="reset"] {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  background: none;
+}
+button:disabled,
+[type="button"]:disabled,
+[type="submit"]:disabled,
+[type="reset"]:disabled {
+  cursor: not-allowed;
+}
+textarea { resize: vertical; }
+select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+
+/* Remoções de UI nativa em navegadores WebKit/Chrome */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+input[type="search"] { -webkit-appearance: none; }
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+::-webkit-calendar-picker-indicator { opacity: 0; pointer-events: none; }
+
+/* Autofill (WebKit) — neutraliza fundo amarelo/azul */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: inherit;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* 8) Acessibilidade de foco (reset mínimo, porém visível) */
+:focus { outline: 2px solid transparent; outline-offset: 2px; }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* 9) Elementos diversos */
+hr { height: 0; border: 0; border-top: 1px solid rgba(0,0,0,.1); }
+abbr[title] { text-decoration: none; border-bottom: none; }
+[hidden] { display: none !important; }
+:where(dialog) { border: 0; padding: 0; }
+
+/* 10) Preferência do usuário: reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 11) Toques e gestos (mobile) */
+input, textarea, select, button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 12) Normalizações opcionais (descomente se quiser um “hard reset” ainda maior) */
+/*
+html, body, #root { height: 100%; }
+fieldset, legend, label { all: unset; display: block; }
+figure { margin: 0; }
+*/
+
+/* 13) Suporte a áreas seguras (notch) — não adiciona padding por padrão
+   Use quando precisar:
+   padding: env(safe-area-inset-top) env(safe-area-inset-right)
+            env(safe-area-inset-bottom) env(safe-area-inset-left);
+*/
