@@ -68,16 +68,38 @@ export const CATEGORY_IMAGES_BUCKET = 'categories'
  * @param {string} path - caminho dentro do bucket ou URL completa
  * @returns {string|null}
  */
+const STORAGE_WARN_CACHE = new Set()
+
+function warnOnce(id, ...args) {
+  if (STORAGE_WARN_CACHE.has(id)) return
+  STORAGE_WARN_CACHE.add(id)
+  // eslint-disable-next-line no-console
+  console.warn(...args)
+}
+
 export function getPublicImageUrl(path) {
   if (!path) return null
   // If it's already a full URL, return as-is
   if (/^https?:\/\//i.test(path)) return path
-  // If it's a local public path (served from /public), return as-is
-  if (path.startsWith('/')) return path
+
+  // Handle local-style paths that may actually point to Supabase buckets
+  const normalized = path.replace(/^\//, '')
+  const [maybeBucket] = normalized.split('/')
+  const knownBuckets = [
+    PRODUCT_IMAGES_BUCKET,
+    BRAND_LOGO_BUCKET,
+    BANNERS_BUCKET,
+    CATEGORY_IMAGES_BUCKET,
+  ]
+  const looksLikeBucketPath = knownBuckets.includes(maybeBucket)
+  if (path.startsWith('/') && (!SUPABASE_ENABLED || !looksLikeBucketPath)) {
+    // Treat as local public asset when Supabase is disabled or bucket name is unknown
+    return path
+  }
 
   try {
     // Normalize: strip any leading slashes
-    let key = path.replace(/^\//, '')
+    let key = normalized
     // Guess bucket by key prefix: allow keys like "brands/..." or "products/..."
     // We'll attempt several strategies to find the right bucket/key:
     // 1) If key looks like "bucketName/remaining/path", try bucketName first
@@ -104,18 +126,13 @@ export function getPublicImageUrl(path) {
       tried.add(id)
       try {
         const { data, error } = supabase.storage.from(at.bucket).getPublicUrl(at.key)
-        // supabase-js may return an error object (rare) — treat that as a failed attempt
         if (error) {
-          // continue to next attempt
-          // eslint-disable-next-line no-console
-          console.warn('getPublicImageUrl: error for bucket', at.bucket, error.message || error)
+          warnOnce(`pub-${at.bucket}-${at.key}`, 'getPublicImageUrl: error for bucket', at.bucket, error.message || error)
           continue
         }
         if (data?.publicUrl) return data.publicUrl
       } catch (err) {
-        // network or unexpected error — continue trying other buckets
-        // eslint-disable-next-line no-console
-        console.warn('getPublicImageUrl: exception for bucket', at.bucket, err?.message || err)
+        warnOnce(`pub-ex-${at.bucket}-${at.key}`, 'getPublicImageUrl: exception for bucket', at.bucket, err?.message || err)
         continue
       }
     }
@@ -132,13 +149,24 @@ export function getPublicImageUrl(path) {
  * @param {number} expires - segundos
  * @returns {Promise<string|null>}
  */
-export async function getSignedImageUrl(path, expires = 60) {
+export async function getSignedImageUrl(path, expires = 3600) {
   if (!path) return null
   if (/^https?:\/\//i.test(path)) return path
   // Local public path doesn't need signed URL
-  if (path.startsWith('/')) return path
+  const normalized = path.replace(/^\//, '')
+  const [maybeBucket] = normalized.split('/')
+  const knownBuckets = [
+    PRODUCT_IMAGES_BUCKET,
+    BRAND_LOGO_BUCKET,
+    BANNERS_BUCKET,
+    CATEGORY_IMAGES_BUCKET,
+  ]
+  const looksLikeBucketPath = knownBuckets.includes(maybeBucket)
+  if (path.startsWith('/') && (!SUPABASE_ENABLED || !looksLikeBucketPath)) {
+    return path
+  }
   try {
-    let key = path.replace(/^\//, '')
+    let key = normalized
     const attempts = []
     const parts = key.split('/')
     if (parts.length > 1) {
@@ -146,10 +174,10 @@ export async function getSignedImageUrl(path, expires = 60) {
       const candidateKey = parts.slice(1).join('/')
       attempts.push({ bucket: candidateBucket, key: candidateKey })
     }
-  attempts.push({ bucket: PRODUCT_IMAGES_BUCKET, key })
-  attempts.push({ bucket: BRAND_LOGO_BUCKET, key })
-  attempts.push({ bucket: BANNERS_BUCKET, key })
-  attempts.push({ bucket: CATEGORY_IMAGES_BUCKET, key })
+    attempts.push({ bucket: PRODUCT_IMAGES_BUCKET, key })
+    attempts.push({ bucket: BRAND_LOGO_BUCKET, key })
+    attempts.push({ bucket: BANNERS_BUCKET, key })
+    attempts.push({ bucket: CATEGORY_IMAGES_BUCKET, key })
 
     const tried = new Set()
     for (const at of attempts) {
@@ -159,14 +187,12 @@ export async function getSignedImageUrl(path, expires = 60) {
       try {
         const { data, error } = await supabase.storage.from(at.bucket).createSignedUrl(at.key, expires)
         if (error) {
-          // eslint-disable-next-line no-console
-          console.warn('getSignedImageUrl: error for bucket', at.bucket, error.message || error)
+          warnOnce(`signed-${at.bucket}-${at.key}`, 'getSignedImageUrl: error for bucket', at.bucket, error.message || error)
           continue
         }
         if (data?.signedURL) return data.signedURL
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn('getSignedImageUrl: exception for bucket', at.bucket, err?.message || err)
+        warnOnce(`signed-ex-${at.bucket}-${at.key}`, 'getSignedImageUrl: exception for bucket', at.bucket, err?.message || err)
         continue
       }
     }
@@ -206,19 +232,36 @@ export function publicUrlFor(bucket, key) {
  * @param {number} expires seconds for signed URL
  * @returns {Promise<string|null>}
  */
-export async function resolveImageUrl(path, expires = 60) {
+export async function resolveImageUrl(path, expires = 3600) {
   if (!path) return null
   if (/^https?:\/\//i.test(path)) return path
-  if (path.startsWith('/')) return path
 
-  // Try public URL first (sync)
+  const normalized = path.replace(/^\//, '')
+  const [maybeBucket] = normalized.split('/')
+  const knownBuckets = [
+    PRODUCT_IMAGES_BUCKET,
+    BRAND_LOGO_BUCKET,
+    BANNERS_BUCKET,
+    CATEGORY_IMAGES_BUCKET,
+  ]
+  const looksLikeBucketPath = knownBuckets.includes(maybeBucket)
+  if (path.startsWith('/') && (!SUPABASE_ENABLED || !looksLikeBucketPath)) {
+    return path
+  }
+
+  // Try public URL first (fast path for public buckets)
   const pub = getPublicImageUrl(path)
   if (pub) return pub
 
-  // Try signed URL
-  const signed = await getSignedImageUrl(path, expires)
-  if (signed) return signed
+  if (looksLikeBucketPath) {
+    const signed = await getSignedImageUrl(normalized, expires)
+    if (signed) return signed
+  } else {
+    const signed = await getSignedImageUrl(path, expires)
+    if (signed) return signed
+  }
 
   // Fallback to original path
-  return path
+  if (path.startsWith('/')) return path
+  return `/${normalized}`
 }

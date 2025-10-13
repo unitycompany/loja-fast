@@ -103,6 +103,7 @@ export default function Home() {
                 if (!mounted) return
                 const filtered = (data || [])
                     .filter(category => !category.parent && (category.numberProducts ?? 0) > 0)
+                    .filter(category => (category.slug || category.id) !== 'argamassas-impermeabilizantes')
                     .sort((a, b) => (b.numberProducts ?? 0) - (a.numberProducts ?? 0))
                 setHomeCategories(filtered.slice(0, 4))
             } catch (error) {

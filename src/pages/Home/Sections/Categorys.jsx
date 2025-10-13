@@ -37,18 +37,26 @@ const Container = styled.section`
 
         & picture {
             width: 100%;
-            height: 150px;
+            height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 12px;
             background-color: var(--color--white);
+            overflow: hidden;
 
             & img {
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
                 object-position: center;
+                transition: all .2s ease-in-out;
+                filter: grayscale(100%);
+
+                &:hover {
+                    transform: scale(1.1) rotate(3deg);
+                    filter: grayscale(0);
+                }
             }
         }
 
@@ -64,11 +72,12 @@ const Container = styled.section`
                 line-height: 100%;
                 font-weight: 500;
                 color: var(--color--black);
+                text-align: center;
             }
     
             & span {
                 font-size: 12px;
-                font-weight: 400;
+                font-weight: 300;
                 color: var(--color--gray);
             }
         }

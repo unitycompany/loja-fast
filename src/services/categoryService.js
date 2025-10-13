@@ -102,9 +102,9 @@ async function buildCategoryStats() {
     if (catKey) categoryKeys.add(catKey)
     if (subKey) categoryKeys.add(subKey)
     for (const pathEntry of extractPathEntries(row.category_path)) {
-        const key = normalizeKey(pathEntry)
-        if (key) categoryKeys.add(key)
-      }
+      const key = normalizeKey(pathEntry)
+      if (key) categoryKeys.add(key)
+    }
 
     for (const key of categoryKeys) increment(categoryTotals, key)
 

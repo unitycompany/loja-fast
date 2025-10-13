@@ -62,15 +62,16 @@ const Text = styled.div`
     }
 
     & h1 {
-        font-size: 28px;
+        font-size: 24px;
         line-height: 100%;
         font-weight: 600;
         color: var(--color--black-2);
         box-shadow: var(--border-bottom);
         padding-bottom: 12px;
+        text-align: center;
 
         @media (max-width: 768px) {
-            font-size: 24px;
+            font-size: 20px;
             padding-bottom: 12px;
         }
     }
