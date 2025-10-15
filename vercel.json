@@ -9,6 +9,7 @@
   ],
   "routes": [
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/produto/(.*)", "dest": "/api/meta-tags" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

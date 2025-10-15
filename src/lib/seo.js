@@ -23,8 +23,9 @@ export function buildProductSeo({ product, selection }){
 	if (selection?.measure?.label) parts.push(selection.measure.label)
 	let title = parts.join(' | ')
 	
-	// Adiciona sufixo "| Fast Sistemas Construtivos" se não tiver
-	if (title && !title.includes('Fast Sistemas')) {
+	// Não adiciona sufixo se o título já for completo (mais de 50 caracteres indica título já otimizado)
+	// Ou se já contém "Fast Sistemas"
+	if (title && !title.includes('Fast Sistemas') && title.length < 50) {
 		title = `${title} | Fast Sistemas Construtivos`
 	}
 
@@ -36,7 +37,15 @@ export function buildProductSeo({ product, selection }){
 	const canonicalUrl = seo.canonical_url || seo.canonicalUrl || (product?.slug ? `${origin}/produto/${product.slug}` : undefined)
 	
 	// Open Graph Image: prioriza seo.og_image, depois seo.ogImage, depois primeira imagem
-	const ogImage = seo.og_image || seo.ogImage || seo.image || (product?.images?.[0]?.url || product?.images?.[0] || product?.image)
+	let ogImage = seo.og_image || seo.ogImage || seo.image || (product?.images?.[0]?.url || product?.images?.[0] || product?.image)
+	
+	// Se a imagem for um caminho relativo (do Supabase Storage), converte para URL completa
+	if (ogImage && !ogImage.startsWith('http')) {
+		const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+		if (supabaseUrl) {
+			ogImage = `${supabaseUrl}/storage/v1/object/public/${ogImage}`
+		}
+	}
 	
 	// Open Graph específicos do produto (se existirem no objeto seo)
 	const ogTitle = seo.og_title || seo.ogTitle || title
@@ -67,10 +76,10 @@ export function buildProductSeo({ product, selection }){
 	const gtin = selection?.unit?.gtin || selection?.measure?.gtin || product?.gtin
 	const mpn = selection?.unit?.mpn || selection?.measure?.mpn || product?.mpn
 
-	// Keywords: combina search_terms do SEO + searchTerms do produto + outros
-	const seoKeywords = seo.keywords || seo.search_terms || seo.searchTerms || []
+	// Keywords: combina metaKeywords do SEO + searchTerms do produto + outros
+	const seoKeywords = seo.keywords || seo.metaKeywords || seo.meta_keywords || seo.search_terms || seo.searchTerms || []
 	const keywords = Array.from(new Set([
-		...(Array.isArray(seoKeywords) ? seoKeywords : []),
+		...(Array.isArray(seoKeywords) ? seoKeywords : (typeof seoKeywords === 'string' ? seoKeywords.split(',').map(k => k.trim()) : [])),
 		...(product?.searchTerms || []),
 		product?.brandName,
 		product?.category,
@@ -80,7 +89,7 @@ export function buildProductSeo({ product, selection }){
 		selection?.measure?.label
 	].filter(Boolean)))
 
-	return {
+	const finalResult = {
 		title,
 		description,
 		canonicalUrl,
@@ -111,6 +120,18 @@ export function buildProductSeo({ product, selection }){
 			brand: product?.brandName 
 		}
 	}
+	
+	// Debug: log resultado final
+	console.log('✅ SEO Resultado Final:', {
+		title: finalResult.title,
+		description: finalResult.description?.substring(0, 100) + '...',
+		canonicalUrl: finalResult.canonicalUrl,
+		image: finalResult.image,
+		ogTitle: finalResult.openGraph['og:title'],
+		twitterCard: finalResult.twitter.card
+	})
+	
+	return finalResult
 }
 
 export function buildCategorySeo({ name, slug, description, image }){
