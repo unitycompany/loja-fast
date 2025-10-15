@@ -6,6 +6,16 @@ export function buildProductSeo({ product, selection }){
 	// Extrai dados SEO do produto (vindos do Supabase)
 	const seo = product?.seo || {}
 	
+	// Debug: log para verificar se o produto tem meta tags
+	console.log('🔍 SEO Debug:', {
+		productName: product?.name,
+		hasSeoField: !!product?.seo,
+		seoKeys: Object.keys(seo),
+		seoTitle: seo.title || seo.meta_title,
+		seoDescription: seo.description || seo.meta_description,
+		seoImage: seo.og_image || seo.ogImage
+	})
+	
 	// Title: prioriza seo.title, depois seo.meta_title, depois nome do produto
 	const titleBase = seo.title || seo.meta_title || seo.metaTitle || product?.name || ''
 	const parts = [titleBase]

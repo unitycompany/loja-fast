@@ -8,7 +8,6 @@ import Adsense from '../../components/banners/Adsense'
 import { fetchBannersByType } from '../../services/bannerService'
 import { resolveImageUrl } from '../../services/supabase'
 import { fetchProductBySlug } from '../../services/productService'
-import SEOHead from '../../components/seo/SEOHead'
 import SEOHelmet from '../../components/seo/SEOHelmet'
 import { buildProductSeo } from '../../lib/seo'
 import Loader from '../../components/common/Loader'
@@ -102,7 +101,6 @@ export default function Product() {
 
     return (
         <>
-            <SEOHead {...seoData} />
             <SEOHelmet 
                 title={seoData.title}
                 description={seoData.description}
