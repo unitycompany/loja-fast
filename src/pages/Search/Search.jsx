@@ -7,6 +7,9 @@ import { resolveImageUrl } from '../../services/supabase'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SEOHelmet from "../../components/seo/SEOHelmet"
+import { getCategorySEO, getBrandSEO, getSearchSEO, generateSchema, SITE_CONFIG } from '../../lib/seoConfig'
+import { fetchCategories } from '../../services/categoryService'
+import { fetchBrands } from '../../services/brandService'
 
 const Container = styled.section`
     display: flex;
@@ -42,10 +45,69 @@ export default function Search() {
     const [filterOpen, setFilterOpen] = useState(false)
     const [adsenseItems, setAdsenseItems] = useState([])
     const [searchParams] = useSearchParams()
+    const [seoData, setSeoData] = useState(null)
     
     const searchQuery = searchParams.get('q') || searchParams.get('search') || ''
     const categoryParam = searchParams.get('category') || ''
     const brandParam = searchParams.get('brand') || ''
+    const subcategoryParam = searchParams.get('subcategory') || ''
+
+    // Carrega dados de categoria/marca para SEO otimizado
+    useEffect(() => {
+        let mounted = true
+        
+        async function loadSEOData() {
+            try {
+                let seo = null
+                
+                if (categoryParam) {
+                    // Busca informações da categoria
+                    const categories = await fetchCategories()
+                    const category = categories?.find(c => 
+                        c.slug === categoryParam || c.id === categoryParam
+                    )
+                    
+                    if (category) {
+                        seo = getCategorySEO(category.slug || categoryParam, category.name, subcategoryParam)
+                        seo.image = category.image || `${SITE_CONFIG.url}/og-category-${categoryParam}.jpg`
+                    } else {
+                        seo = getCategorySEO(categoryParam, categoryParam, subcategoryParam)
+                    }
+                } else if (brandParam) {
+                    // Busca informações da marca
+                    const brands = await fetchBrands()
+                    const brand = brands?.find(b => 
+                        b.slug === brandParam || b.id === brandParam || 
+                        b.name?.toLowerCase() === brandParam.toLowerCase()
+                    )
+                    
+                    if (brand) {
+                        seo = getBrandSEO(brand.slug || brandParam, brand.name)
+                        seo.image = brand.logo || brand.image || `${SITE_CONFIG.url}/og-brand-${brandParam}.jpg`
+                    } else {
+                        seo = getBrandSEO(brandParam, brandParam)
+                    }
+                } else if (searchQuery) {
+                    seo = getSearchSEO(searchQuery)
+                } else {
+                    // Página de busca genérica
+                    seo = {
+                        title: 'Buscar Produtos | Fast Sistemas Construtivos',
+                        description: 'Navegue por nosso catálogo completo. Filtre por categoria, marca, preço e encontre exatamente o que precisa.',
+                        keywords: ['busca', 'catálogo', 'produtos construção', 'materiais'],
+                        canonicalUrl: `${SITE_CONFIG.url}/pesquisa`,
+                    }
+                }
+                
+                if (mounted) setSeoData(seo)
+            } catch (err) {
+                console.error('Failed to load SEO data', err)
+            }
+        }
+        
+        loadSEOData()
+        return () => { mounted = false }
+    }, [categoryParam, brandParam, searchQuery, subcategoryParam])
 
     useEffect(() => {
         let mounted = true
@@ -66,42 +128,25 @@ export default function Search() {
         return () => { mounted = false }
     }, [])
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    const pageTitle = searchQuery 
-        ? `Busca: ${searchQuery} | Fast Sistemas Construtivos`
-        : categoryParam
-        ? `Categoria: ${categoryParam} | Fast Sistemas Construtivos`
-        : brandParam
-        ? `Marca: ${brandParam} | Fast Sistemas Construtivos`
-        : 'Buscar Produtos | Fast Sistemas Construtivos'
-    
-    const pageDescription = searchQuery
-        ? `Resultados de busca para "${searchQuery}". Encontre os melhores produtos de construção.`
-        : categoryParam
-        ? `Navegue por produtos da categoria ${categoryParam}. Qualidade e preço justo.`
-        : brandParam
-        ? `Produtos da marca ${brandParam}. Qualidade garantida.`
-        : 'Encontre produtos de construção civil. Argamassas, impermeabilizantes, ferramentas e mais.'
-
-    const currentUrl = typeof window !== 'undefined' ? window.location.href : origin + '/search'
-    
-    const searchSchema = {
-        "@context": "https://schema.org",
-        "@type": "SearchResultsPage",
-        "url": currentUrl,
-        "name": pageTitle
-    }
+    // SEO Schema
+    const searchSchema = seoData ? generateSchema('SearchResultsPage', {
+        url: seoData.canonicalUrl,
+        title: seoData.title
+    }) : null
 
     return (
         <>
-            <SEOHelmet
-                title={pageTitle}
-                description={pageDescription}
-                canonicalUrl={currentUrl}
-                type="website"
-                keywords={['busca', 'produtos', 'construção', searchQuery, categoryParam, brandParam].filter(Boolean)}
-                schema={searchSchema}
-            />
+            {seoData && (
+                <SEOHelmet
+                    title={seoData.title}
+                    description={seoData.description}
+                    canonicalUrl={seoData.canonicalUrl}
+                    image={seoData.image}
+                    type="website"
+                    keywords={seoData.keywords}
+                    schema={searchSchema}
+                />
+            )}
             <Container>
                 <Main>
                     <Filter open={filterOpen} setOpen={setFilterOpen} />

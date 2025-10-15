@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import AdminGate from './AdminGate'
+import SEOHelmet from '../../components/seo/SEOHelmet'
 import {
   listBrands, upsertBrand, deleteBrand,
   listBanners, upsertBanner, deleteBanner,
@@ -23,7 +24,7 @@ const Section = styled.section`
   box-shadow: var(--border-full);
 `
 
-export default function Admin() {
+function Admin() {
   const [brands, setBrands] = useState([])
   const [banners, setBanners] = useState([])
   const [products, setProducts] = useState([])
@@ -265,3 +266,20 @@ export default function Admin() {
     </Container>
   )
 }
+
+// Wrapper component with SEO
+function AdminWithSEO() {
+  return (
+    <>
+      <SEOHelmet
+        title="Painel Administrativo | Fast Sistemas Construtivos"
+        description="Área administrativa restrita"
+        noindex={true}
+        nofollow={true}
+      />
+      <Admin />
+    </>
+  )
+}
+
+export default AdminWithSEO

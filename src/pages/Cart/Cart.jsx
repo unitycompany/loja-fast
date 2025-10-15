@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import MainCart from "./Sections/Main";
 import SEOHelmet from "../../components/seo/SEOHelmet";
+import { ROUTE_SEO, SITE_CONFIG } from '../../lib/seoConfig';
 
 const Container = styled.div`
     width: 100%;
@@ -16,14 +17,14 @@ const Container = styled.div`
 `
 
 export default function Cart() {
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const orcamentoSEO = ROUTE_SEO.orcamento
     
     return (
         <>
             <SEOHelmet
-                title="Carrinho de Compras | Fast Sistemas Construtivos"
-                description="Revise seus produtos selecionados e solicite um orçamento personalizado. Entrega rápida e preços competitivos."
-                canonicalUrl={`${origin}/carrinho`}
+                title={orcamentoSEO.title}
+                description={orcamentoSEO.description}
+                canonicalUrl={`${SITE_CONFIG.url}${orcamentoSEO.path}`}
                 type="website"
                 noindex={true}
             />

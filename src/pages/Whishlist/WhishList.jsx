@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import WishMain from "./Sections/Main";
 import SEOHelmet from "../../components/seo/SEOHelmet";
+import { ROUTE_SEO, SITE_CONFIG } from '../../lib/seoConfig';
 
 const Container = styled.main`
     display: flex;
@@ -16,14 +17,14 @@ const Container = styled.main`
 `
 
 export default function WhishList() {
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const favoritosSEO = ROUTE_SEO.favoritos
     
     return (
         <>
             <SEOHelmet
-                title="Lista de Desejos | Fast Sistemas Construtivos"
-                description="Seus produtos favoritos salvos para compra futura. Organize sua lista de materiais de construção."
-                canonicalUrl={`${origin}/lista-de-desejos`}
+                title={favoritosSEO.title}
+                description={favoritosSEO.description}
+                canonicalUrl={`${SITE_CONFIG.url}${favoritosSEO.path}`}
                 type="website"
                 noindex={true}
             />
