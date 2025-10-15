@@ -37,6 +37,17 @@ export default function SEOHelmet({
 	const ogImage = image || '/og-default.jpg'
 	const ogImageAlt = imageAlt || title || 'Fast Sistemas Construtivos'
 
+	// Open Graph específicos (usa valores customizados ou fallback para os padrões)
+	const ogTitle = openGraph?.['og:title'] || fullTitle
+	const ogDescription = openGraph?.['og:description'] || fullDescription
+	const ogType = openGraph?.['og:type'] || type
+
+	// Twitter específicos
+	const finalTwitterCard = twitter?.card || twitterCard
+	const twitterTitleFinal = twitter?.title || fullTitle
+	const twitterDescriptionFinal = twitter?.description || fullDescription
+	const twitterImageFinal = twitter?.image || ogImage
+
 	// Build robots directive
 	const robotsContent = noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
 
@@ -54,11 +65,11 @@ export default function SEOHelmet({
 			{canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
 			{/* Open Graph / Facebook */}
-			<meta property="og:type" content={type} />
+			<meta property="og:type" content={ogType} />
 			<meta property="og:site_name" content={siteName} />
 			<meta property="og:locale" content={locale} />
-			<meta property="og:title" content={fullTitle} />
-			<meta property="og:description" content={fullDescription} />
+			<meta property="og:title" content={ogTitle} />
+			<meta property="og:description" content={ogDescription} />
 			{canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
 			{ogImage && (
 				<>
@@ -102,10 +113,10 @@ export default function SEOHelmet({
 			)}
 
 			{/* Twitter Card */}
-			<meta name="twitter:card" content={twitterCard} />
-			<meta name="twitter:title" content={fullTitle} />
-			<meta name="twitter:description" content={fullDescription} />
-			{ogImage && <meta name="twitter:image" content={ogImage} />}
+			<meta name="twitter:card" content={finalTwitterCard} />
+			<meta name="twitter:title" content={twitterTitleFinal} />
+			<meta name="twitter:description" content={twitterDescriptionFinal} />
+			{twitterImageFinal && <meta name="twitter:image" content={twitterImageFinal} />}
 			{ogImageAlt && <meta name="twitter:image:alt" content={ogImageAlt} />}
 			{twitterSite && <meta name="twitter:site" content={twitterSite} />}
 			{twitterCreator && <meta name="twitter:creator" content={twitterCreator} />}

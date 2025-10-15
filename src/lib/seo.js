@@ -2,16 +2,42 @@
 
 export function buildProductSeo({ product, selection }){
 	// selection: { unit, measure, price }
-	const titleBase = product?.seo?.title || product?.name || ''
+	
+	// Extrai dados SEO do produto (vindos do Supabase)
+	const seo = product?.seo || {}
+	
+	// Title: prioriza seo.title, depois seo.meta_title, depois nome do produto
+	const titleBase = seo.title || seo.meta_title || seo.metaTitle || product?.name || ''
 	const parts = [titleBase]
 	if (selection?.unit?.label) parts.push(selection.unit.label)
 	if (selection?.measure?.label) parts.push(selection.measure.label)
-	const title = parts.join(' | ')
+	let title = parts.join(' | ')
+	
+	// Adiciona sufixo "| Fast Sistemas Construtivos" se não tiver
+	if (title && !title.includes('Fast Sistemas')) {
+		title = `${title} | Fast Sistemas Construtivos`
+	}
 
-	const description = product?.seo?.description || product?.shortDescription || product?.description || ''
-		const origin = (typeof globalThis !== 'undefined' && globalThis.location && globalThis.location.origin) ? globalThis.location.origin : ''
-		const canonicalUrl = product?.seo?.canonicalUrl || (product?.slug ? `${origin}/produto/${product.slug}` : undefined)
-	const ogImage = product?.seo?.ogImage || (product?.images?.[0]?.url || product?.images?.[0] || product?.image)
+	// Description: prioriza seo.description, depois seo.meta_description
+	const description = seo.description || seo.meta_description || seo.metaDescription || product?.shortDescription || product?.description || ''
+	
+	// URL: prioriza seo.canonical_url ou seo.canonicalUrl
+	const origin = (typeof globalThis !== 'undefined' && globalThis.location && globalThis.location.origin) ? globalThis.location.origin : ''
+	const canonicalUrl = seo.canonical_url || seo.canonicalUrl || (product?.slug ? `${origin}/produto/${product.slug}` : undefined)
+	
+	// Open Graph Image: prioriza seo.og_image, depois seo.ogImage, depois primeira imagem
+	const ogImage = seo.og_image || seo.ogImage || seo.image || (product?.images?.[0]?.url || product?.images?.[0] || product?.image)
+	
+	// Open Graph específicos do produto (se existirem no objeto seo)
+	const ogTitle = seo.og_title || seo.ogTitle || title
+	const ogDescription = seo.og_description || seo.ogDescription || description
+	const ogType = seo.og_type || seo.ogType || 'product'
+	
+	// Twitter Card
+	const twitterCard = seo.twitter_card || seo.twitterCard || 'summary_large_image'
+	const twitterTitle = seo.twitter_title || seo.twitterTitle || title
+	const twitterDescription = seo.twitter_description || seo.twitterDescription || description
+	const twitterImage = seo.twitter_image || seo.twitterImage || ogImage
 
 	const price = selection?.price ?? product?.price
 	const currency = product?.currency || 'BRL'
@@ -31,7 +57,10 @@ export function buildProductSeo({ product, selection }){
 	const gtin = selection?.unit?.gtin || selection?.measure?.gtin || product?.gtin
 	const mpn = selection?.unit?.mpn || selection?.measure?.mpn || product?.mpn
 
+	// Keywords: combina search_terms do SEO + searchTerms do produto + outros
+	const seoKeywords = seo.keywords || seo.search_terms || seo.searchTerms || []
 	const keywords = Array.from(new Set([
+		...(Array.isArray(seoKeywords) ? seoKeywords : []),
 		...(product?.searchTerms || []),
 		product?.brandName,
 		product?.category,
@@ -46,12 +75,31 @@ export function buildProductSeo({ product, selection }){
 		description,
 		canonicalUrl,
 		image: ogImage,
-		noindex: false,
+		imageAlt: seo.image_alt || seo.imageAlt || product?.name,
+		noindex: seo.noindex || false,
 		keywords,
 		type: 'product',
-		openGraph: {},
-		twitter: {},
-		product: { price, currency, availability, condition, sku, gtin, mpn, brand: product?.brandName }
+		openGraph: {
+			'og:title': ogTitle,
+			'og:description': ogDescription,
+			'og:type': ogType,
+		},
+		twitter: {
+			card: twitterCard,
+			title: twitterTitle,
+			description: twitterDescription,
+			image: twitterImage,
+		},
+		product: { 
+			price, 
+			currency, 
+			availability, 
+			condition, 
+			sku, 
+			gtin, 
+			mpn, 
+			brand: product?.brandName 
+		}
 	}
 }
 

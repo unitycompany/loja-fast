@@ -108,9 +108,12 @@ export default function Product() {
                 description={seoData.description}
                 canonicalUrl={seoData.canonicalUrl}
                 image={seoData.image}
-                imageAlt={product?.name}
+                imageAlt={seoData.imageAlt}
                 type="product"
                 keywords={seoData.keywords}
+                noindex={seoData.noindex}
+                openGraph={seoData.openGraph}
+                twitter={seoData.twitter}
                 product={seoData.product}
             />
             <Container>
