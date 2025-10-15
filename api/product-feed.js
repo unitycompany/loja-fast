@@ -48,7 +48,9 @@ function resolveImageUrl(product) {
     // Verifica se é string antes de usar startsWith
     if (typeof img === 'string') {
       if (img.startsWith('http')) return img
-      return `${SUPABASE_URL || SITE_URL}/storage/v1/object/public/product-images/${img}`
+      // Remove barras duplicadas
+      const cleanImg = img.replace(/^\/+/, '')
+      return `${SUPABASE_URL}/storage/v1/object/public/product-images/${cleanImg}`
     }
     
     // Se for objeto com propriedade url ou src
@@ -56,12 +58,20 @@ function resolveImageUrl(product) {
       const imgUrl = img.url || img.src || img.path
       if (imgUrl && typeof imgUrl === 'string') {
         if (imgUrl.startsWith('http')) return imgUrl
-        return `${SUPABASE_URL || SITE_URL}/storage/v1/object/public/product-images/${imgUrl}`
+        const cleanImg = imgUrl.replace(/^\/+/, '')
+        return `${SUPABASE_URL}/storage/v1/object/public/product-images/${cleanImg}`
       }
     }
   }
   
-  return `${SITE_URL}/placeholder-product.jpg`
+  // Tenta usar o slug para gerar uma imagem padrão
+  const slug = product.slug || product.id
+  if (slug) {
+    return `${SITE_URL}/assets/products/${slug}.jpg`
+  }
+  
+  // Última tentativa: imagem genérica de produto
+  return `${SITE_URL}/assets/product-default.jpg`
 }
 
 function mapAvailability(availability, stock) {
@@ -103,26 +113,43 @@ function generateProductItem(product) {
   const price = formatPrice(product.price, product.currency || 'BRL')
   const availability = mapAvailability(product.availability, product.stock)
   const condition = mapCondition(product.condition)
-  const brand = escapeXml(product.brand || product.brandName || '')
+  const brand = escapeXml(product.brand || product.brandName || 'Sem marca')
   const gtin = product.gtin || product.ean || product.ean13 || ''
-  const mpn = product.mpn || product.sku || ''
+  const mpn = product.mpn || product.sku || id
   const category = escapeXml(product.category || '')
   
-  const limitedDescription = description.substring(0, 5000)
+  // Google Shopping Category (usar categoria genérica brasileira)
+  const googleCategory = 'Materiais de Construção > Construção a Seco'
+  
+  // Shipping - frete grátis ou calculado
+  const shippingWeight = product.weight?.value || 1
+  const shippingWeightUnit = product.weight?.unit || 'kg'
+  
+  // Identificador_exists - indica se tem GTIN
+  const identifierExists = gtin ? 'yes' : 'no'
+  
+  // Limita descrição a 5000 caracteres (limite do Google)
+  const limitedDescription = description.substring(0, 5000) || title
+  
+  // Limita título a 150 caracteres (recomendação Google)
+  const limitedTitle = title.substring(0, 150)
 
   return `    <item>
       <g:id>${escapeXml(id)}</g:id>
-      <g:title>${title}</g:title>
+      <g:title>${limitedTitle}</g:title>
       <g:description>${escapeXml(limitedDescription)}</g:description>
       <g:link>${escapeXml(link)}</g:link>
       <g:image_link>${escapeXml(imageLink)}</g:image_link>
       <g:price>${price}</g:price>
       <g:availability>${availability}</g:availability>
-      <g:condition>${condition}</g:condition>${brand ? `
-      <g:brand>${brand}</g:brand>` : ''}${gtin ? `
-      <g:gtin>${escapeXml(gtin)}</g:gtin>` : ''}${mpn ? `
-      <g:mpn>${escapeXml(mpn)}</g:mpn>` : ''}${category ? `
+      <g:condition>${condition}</g:condition>
+      <g:brand>${brand}</g:brand>
+      <g:identifier_exists>${identifierExists}</g:identifier_exists>${gtin ? `
+      <g:gtin>${escapeXml(gtin)}</g:gtin>` : ''}
+      <g:mpn>${escapeXml(mpn)}</g:mpn>${category ? `
       <g:product_type>${category}</g:product_type>` : ''}
+      <g:google_product_category>${googleCategory}</g:google_product_category>
+      <g:shipping_weight>${shippingWeight} ${shippingWeightUnit}</g:shipping_weight>
     </item>`
 }
 

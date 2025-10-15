@@ -20,19 +20,22 @@ Criamos um feed de produtos no formato **RSS 2.0 com namespace Google** (`g:`), 
 Cada produto inclui os seguintes campos obrigatórios:
 
 - **g:id** - Identificador único do produto
-- **g:title** - Nome do produto
-- **g:description** - Descrição detalhada (sem HTML)
+- **g:title** - Nome do produto (máx. 150 caracteres)
+- **g:description** - Descrição detalhada sem HTML (máx. 5000 caracteres)
 - **g:link** - URL da página do produto
-- **g:image_link** - URL da imagem principal
+- **g:image_link** - URL da imagem principal (pública e acessível)
 - **g:price** - Preço no formato "25.90 BRL"
 - **g:availability** - Disponibilidade (in_stock, out_of_stock, preorder)
 - **g:condition** - Condição (new, used, refurbished)
+- **g:brand** - Marca do produto (obrigatório)
+- **g:identifier_exists** - Indica se tem GTIN (yes/no)
+- **g:mpn** - Número do modelo do fabricante
+- **g:google_product_category** - Categoria do Google Shopping
+- **g:shipping_weight** - Peso para cálculo de frete
 
 Campos opcionais (quando disponíveis):
-- **g:brand** - Marca do produto
-- **g:gtin** - Código de barras (EAN, UPC)
-- **g:mpn** - Número do modelo do fabricante
-- **g:product_type** - Categoria do produto
+- **g:gtin** - Código de barras (EAN, UPC) - obrigatório para algumas categorias
+- **g:product_type** - Categoria do produto (sua taxonomia própria)
 
 ## 🚀 Como Usar
 
@@ -148,24 +151,70 @@ Antes de enviar, certifique-se de que seus produtos têm:
 3. Teste acessando diretamente: `https://seu-site.com/product-feed.xml`
 4. O retorno deve ser XML, não HTML
 
-### Erro: "GTIN obrigatório"
+### Erro: "Faltando dados do inventário" ou "Availability ausente"
+
+**Causa:** Campos obrigatórios de inventário não estão presentes.
+
+**Solução:**
+1. **Certifique-se que cada produto tem:**
+   - `availability` (in_stock, out_of_stock, preorder)
+   - `price` (preço válido)
+   - `condition` (new, used, refurbished)
+   
+2. **Adicione estoque nos produtos:**
+   ```javascript
+   {
+     "availability": "in_stock",
+     "stock": 100,
+     "price": 29.90,
+     "condition": "new"
+   }
+   ```
+
+3. **Configure no Supabase:**
+   - Abra a tabela `products`
+   - Verifique se os campos existem
+   - Preencha valores padrão para produtos sem dados
+
+### Erro: "GTIN obrigatório" ou "Identificador ausente"
 
 **Causa:** Para algumas categorias, o Google exige código de barras (GTIN/EAN).
 
 **Solução:**
 1. Adicione o campo `gtin` ou `ean` nos seus produtos
-2. Se não tiver GTIN, peça isenção no Merchant Center:
+2. Use o campo `identifier_exists`:
+   - `yes` - se tem GTIN
+   - `no` - se não tem GTIN (pedirá isenção automaticamente)
+3. Se não tiver GTIN, peça isenção no Merchant Center:
    - Vá em **Produtos** → **Diagnóstico**
    - Clique no erro → **Solicitar isenção de GTIN**
 
-### Erro: "Imagem não encontrada"
+### Erro: "Imagem não encontrada" ou "Não é possível mostrar imagem"
 
-**Causa:** A URL da imagem está incorreta ou inacessível.
+**Causa:** A URL da imagem está incorreta, inacessível, ou o domínio não corresponde ao link.
 
 **Solução:**
-1. Verifique se as URLs das imagens são públicas
-2. Teste as URLs das imagens no navegador
-3. Certifique-se de que as imagens estão no Supabase Storage com acesso público
+1. **Verifique se as imagens são públicas:**
+   - Acesse o Supabase Dashboard
+   - Vá em Storage → product-images
+   - Certifique-se que o bucket é público
+   - Teste a URL: `https://SEU_PROJETO.supabase.co/storage/v1/object/public/product-images/NOME_IMAGEM.jpg`
+
+2. **Domínio incompatível:**
+   - A imagem deve estar no mesmo domínio do site OU em domínio verificado
+   - Configure `VITE_SITE_URL=https://loja-fast.vercel.app` no `.env`
+   - Ou use CDN com HTTPS válido
+
+3. **Formato e tamanho:**
+   - Mínimo: 250x250px
+   - Recomendado: 800x800px ou maior
+   - Formatos aceitos: JPG, PNG, GIF, WebP
+   - Tamanho máximo: 16MB
+
+4. **Teste as URLs:**
+   - Abra cada URL de imagem no navegador
+   - Deve carregar a imagem diretamente
+   - Não pode redirecionar ou retornar HTML
 
 ### Erro: "Preço ausente ou inválido"
 
