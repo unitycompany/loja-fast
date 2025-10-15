@@ -14,8 +14,8 @@ const PUBLIC_DIR = path.join(ROOT, 'public')
 const PRODUCTS_JSON = path.join(ROOT, 'src', 'data', 'products.json')
 const CATEGORIES_JSON = path.join(ROOT, 'src', 'data', 'categories.json')
 
-const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://loja.fastsistemasconstrutivos.com.br'
-const BASE_PATH = process.env.BASE_PATH || '/'
+const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://unitycompany.github.io'
+const BASE_PATH = process.env.BASE_PATH || '/loja-fast/'
 const BASE_URL = new URL(BASE_PATH, SITE_ORIGIN).toString()
 
 const SUPABASE_URL = process.env.SUPABASE_URL

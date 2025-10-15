@@ -7,6 +7,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { fetchBannersByType } from '../../services/bannerService'
 import { resolveImageUrl } from '../../services/supabase'
 import { fetchCategories } from '../../services/categoryService'
+import SEOHelmet from "../../components/seo/SEOHelmet"
 
 const Container = styled.main`
     display: flex;
@@ -115,8 +116,30 @@ export default function Home() {
         return () => { mounted = false }
     }, [])
 
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    const homeSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Fast Sistemas Construtivos",
+        "url": origin,
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": `${origin}/search?q={search_term_string}`,
+            "query-input": "required name=search_term_string"
+        }
+    }
+
     return (
         <>
+            <SEOHelmet
+                title="Fast Sistemas Construtivos | Materiais de Construção e Sistemas Construtivos"
+                description="Encontre os melhores produtos para construção civil. Argamassas, impermeabilizantes, aditivos, ferramentas e muito mais. Qualidade e preço justo."
+                canonicalUrl={origin}
+                image={`${origin}/og-home.jpg`}
+                type="website"
+                keywords={['materiais de construção', 'argamassa', 'impermeabilizante', 'sistemas construtivos', 'construção civil', 'ferramentas', 'acabamento']}
+                schema={homeSchema}
+            />
             <Container data-aos="fade-up">
                 <HeroBanners />
                 <Content data-aos="fade-up" data-aos-delay="80">

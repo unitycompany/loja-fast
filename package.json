@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-  "prebuild": "node ./scripts/prerender-seo.mjs && node ./scripts/generate-robots.mjs && node ./scripts/generate-sitemap.mjs",
+    "prebuild": "node ./scripts/generate-robots.mjs && node ./scripts/generate-sitemap.mjs",
     "build": "vite build",
-    "prerender": "node ./scripts/prerender-seo.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -19,6 +18,7 @@
     "dayjs": "^1.11.18",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.64.0",
     "react-icons": "^5.5.0",
     "react-number-format": "^5.4.4",

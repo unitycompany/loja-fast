@@ -9,6 +9,7 @@ import { fetchBannersByType } from '../../services/bannerService'
 import { resolveImageUrl } from '../../services/supabase'
 import { fetchProductBySlug } from '../../services/productService'
 import SEOHead from '../../components/seo/SEOHead'
+import SEOHelmet from '../../components/seo/SEOHelmet'
 import { buildProductSeo } from '../../lib/seo'
 import Loader from '../../components/common/Loader'
 
@@ -102,6 +103,16 @@ export default function Product() {
     return (
         <>
             <SEOHead {...seoData} />
+            <SEOHelmet 
+                title={seoData.title}
+                description={seoData.description}
+                canonicalUrl={seoData.canonicalUrl}
+                image={seoData.image}
+                imageAlt={product?.name}
+                type="product"
+                keywords={seoData.keywords}
+                product={seoData.product}
+            />
             <Container>
                 <Main product={product} selectedMeasureId={selectedMeasureId} setSelectedMeasureId={setSelectedMeasureId} selectedUnitIndex={selectedUnitIndex} setSelectedUnitIndex={setSelectedUnitIndex} />
                 <StructuredData product={product} />
