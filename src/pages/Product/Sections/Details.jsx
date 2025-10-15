@@ -6,7 +6,7 @@ const Container = styled.section`
   width: 100%;
   padding: 2.5%;
   box-sizing: border-box;
-  border-top: 1px solid #eee;
+  border-top: 2px solid var(--color--gray-6);
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -15,7 +15,7 @@ const Container = styled.section`
   gap: 24px;
 
   @media (max-width: 768px){
-    padding: 2.5%;  
+    padding: 5%;  
   }
 
   & h3 {
@@ -44,6 +44,10 @@ const Technical = styled.table`
   width: 100%;
   border-collapse: collapse;
   td, th { padding: 8px; border: 1px solid #eee; text-align: left }
+
+  th {
+    font-weight: 500;
+  }
 `
 
 const RichContent = styled.div`
@@ -55,8 +59,8 @@ const RichContent = styled.div`
   /* Headings */
   h1,h2,h3,h4,h5,h6 {
     margin: 20px 0 10px;
-    line-height: 1.25;
-    color: #111;
+    line-height: 1;
+    color: var(--color--primary-dark);
     font-weight: 600;
   }
   h1 { font-size: 1.875rem; }
@@ -65,9 +69,9 @@ const RichContent = styled.div`
   h4 { font-size: 1.125rem; }
 
   /* Paragraphs */
-  p { margin: 0 0 14px; }
-  p + p { margin-top: 6px; }
-  b, strong { font-weight: 600; color: #111; }
+  p { margin: 0 0 12px; line-height: 1.3; color: var(--color--black-4); font-weight: 300; }
+  p + p { margin-top: 0px; }
+  b, strong { font-weight: 500; color: var(--color--black-1); }
   i, em { font-style: italic; }
   br { content: ""; }
 
@@ -77,12 +81,12 @@ const RichContent = styled.div`
 
   /* Lists */
   ul, ol {
-    margin: 8px 0 14px 22px;
+    margin: 8px 0 12px 22px;
     padding-left: 20px;
   }
   ul { list-style: disc outside; }
   ol { list-style: decimal outside; }
-  li { margin: 6px 0; }
+  li { margin: 6px 0; line-height: 1.2; }
   li > ul, li > ol { margin-top: 6px; }
 
   /* Images */
@@ -110,7 +114,7 @@ const RichContent = styled.div`
     text-align: left;
     border-bottom: 1px solid #eee;
   }
-  table th { background: #f7f7f7; font-weight: 600; }
+  table th { background: #f7f7f7; font-weight: 400; }
   table tr:nth-child(even) td { background: #fafafa; }
   table tr:last-child td { border-bottom: 0; }
   .table-wrapper { overflow-x: auto; }
@@ -170,20 +174,28 @@ export default function Details({ product, selectedMeasureId, setSelectedMeasure
         <RichContent>{textDescription}</RichContent>
       )}
 
-      <h3>Medidas disponíveis</h3>
-      <Measures>
-        {measures.map(m=> (
-          <Measure key={m.id} active={m.id===selectedMeasureId} onClick={()=>setSelectedMeasureId(m.id)}>{m.label}</Measure>
-        ))}
-      </Measures>
+      {measures.length > 1 ? (
+        <>
+          <h3>Medidas disponíveis</h3>
+        <Measures>
+          {measures.map(m=> (
+            <Measure key={m.id} active={m.id===selectedMeasureId} onClick={()=>setSelectedMeasureId(m.id)}>{m.label}</Measure>
+          ))}
+          </Measures>
+        </> 
+      ) : null
+    }
 
-      <h3>Informações técnicas</h3>
+
+      <h3>Mais Informações</h3>
       <Technical>
         <tbody>
           <tr><th>SKU</th><td>{resolvedSku}</td></tr>
           {resolvedGtin ? (<tr><th>GTIN</th><td>{resolvedGtin}</td></tr>) : null}
           {resolvedMpn ? (<tr><th>MPN</th><td>{resolvedMpn}</td></tr>) : null}
-          <tr><th>Peso</th><td>{product.weight ? `${product.weight.value} ${product.weight.unit}` : '-'}</td></tr>
+
+          <tr><th>Peso</th><td>{product.weight ? `${product.weight.value ? product.weight.value : ''} ${product.weight.value ? product.weight.unit : '-'}` : '-'}</td></tr>
+
           <tr><th>Dimensões (LxA)</th><td>{selected ? `${selected.width}${selected.unit} x ${selected.length}${selected.unit}` : '-'}</td></tr>
           {product.properties?.map((p,i)=> (
             <tr key={i}><th>{p.name}</th><td>{p.value}</td></tr>

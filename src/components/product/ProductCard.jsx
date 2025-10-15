@@ -19,8 +19,8 @@ const Container = styled.div`
     z-index: 1;
     background-color: var(--color--white);
     border: 1px solid #00000020;
-    padding: 12px 12px 18px 12px;
-    gap: 12px;
+    padding: 8px 8px 8px 8px;
+    gap: 8px;
     /* Standardize visual height so cards align nicely across rows */
     min-height: 360px;
     @media (max-width: 768px) {
@@ -65,8 +65,9 @@ const Image = styled.div`
     & img {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
         transition: transform 240ms ease;
+        border: 1px solid var(--color--gray-6);
     }
 
     ${Container}:hover & img {
@@ -92,7 +93,7 @@ const Actions = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 4px;
     z-index: 2;
     opacity: 0;
     transform: translateY(-4px);
@@ -121,24 +122,25 @@ const Texts = styled.div`
     justify-content: center;
     flex-direction: column;
     width: 100%;
-    gap: 12px;
+    gap: 8px;
 
     & > span {
-        font-size: 14px;
+        font-size: 12px;
         color: var(--color--gray);
         /* Truncate to one line with ellipsis in a cross-browser way */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        margin-bottom: -6px;
 
         @media (max-width: 768px) {
-            font-size: 12px;    
+            font-size: 10px;    
         }
     }
 
     & > h2 {
-        font-size: 22px;
-        font-weight: 600;
+        font-size: 20px;
+        font-weight: 500;
         color: var(--color--black-2);
         line-height: 1.2;
         margin: 0;
@@ -171,6 +173,31 @@ const Infos = styled.div`
     box-shadow: var(--border-top);
     /* Reserve space so priced vs orçar don't change card height */
     min-height: 72px;
+
+    & .solicitar-orcamento {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        & span {
+            font-size: 18px;
+            font-weight: 400;
+
+            @media (max-width: 768px) {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            & svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+
     @media (max-width: 768px) {
         min-height: 60px;
     }
@@ -454,34 +481,41 @@ export default function ProductCard({
                     <span>{productCategory}</span>
                     <h2 onClick={(e) => { e.stopPropagation(); productSlug && goToProduct() }} style={{ cursor: productSlug ? 'pointer' : 'inherit' }}>{productName}</h2>
                     <Infos>
-                        <Coast>
-                            {isPriced ? (
-                                <>
-                                    <span>A partir de:</span>
-                                    <Discount>
-                                        <span><strong>{formatCurrency(safePrice * 1.3)}</strong></span>
-                                    </Discount>
-                                    <div>
-                                        <span><strong>{formatCurrency(safePrice)}</strong></span>
-                                    </div>
-                                </>
-                            ) : (
-                                <div>
-                                    <span><strong>Orçar</strong></span>
-                                </div>
-                            )}
-                        </Coast>
-                        <ProductIcon 
-                            color="#409E0D"
-                            onClick={handleAddToCart}
-                            ariaLabel="Adicionar ao caminhão"
-                        >
-                            <ShoppingCartIcon />
-                        </ProductIcon>
+                            {
+                                isPriced ? (
+                                    <>
+                                    <Coast>
+                                        <span>A partir de:</span>
+                                        <Discount>
+                                            <span><strong>{formatCurrency(safePrice * 1.3)}</strong></span>
+                                        </Discount>
+                                        <div>
+                                            <span><strong>{formatCurrency(safePrice)}</strong></span>
+                                        </div>
+                                    </Coast>
+                                    <ProductIcon 
+                                        color="#06402B"
+                                        onClick={handleAddToCart}
+                                        ariaLabel="Adicionar ao caminhão"
+                                    >
+                                        <ShoppingCartIcon />
+                                    </ProductIcon>
+                                    </>
+                                ): (
+                                    <>
+                                        <ProductIcon 
+                                        color="#06402B"
+                                        onClick={handleAddToCart}
+                                        ariaLabel="Adicionar ao caminhão"
+                                        className="solicitar-orcamento"
+                                    >
+                                        <span>Necessário orçar</span>
+                                        <ShoppingCartIcon />
+                                    </ProductIcon>
+                                    </>
+                                )
+                            }
                     </Infos>
-                    {actionFeedback ? (
-                        <Feedback role="status" $tone={actionFeedback.tone}>{actionFeedback.message}</Feedback>
-                    ) : null}
                 </Texts>
             </Container>
         </>

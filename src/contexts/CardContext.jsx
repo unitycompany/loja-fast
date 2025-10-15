@@ -49,10 +49,24 @@ export function CartProvider({ children }){
     setItems(prev => (Array.isArray(prev) ? prev.filter(i => !predicate(i)) : []))
   }
 
+  // Atualiza a quantidade de um item de forma estável (sem reordenar a lista)
+  function updateItemQuantity(sku, unitKey, nextQuantity){
+    setItems(prev => {
+      const next = Array.isArray(prev) ? [...prev] : []
+      const idx = next.findIndex(i => i.sku === sku && i.unitKey === unitKey)
+      if (idx < 0) return prev
+      const currentQty = Number(next[idx].quantity || 1)
+      const desired = typeof nextQuantity === 'function' ? nextQuantity(currentQty) : nextQuantity
+      const safeQty = Math.max(1, Number(desired) || 1)
+      next[idx] = { ...next[idx], quantity: safeQty }
+      return next
+    })
+  }
+
   function clear(){ setItems([]) }
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clear }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateItemQuantity, clear }}>
       {children}
     </CartContext.Provider>
   )

@@ -21,12 +21,12 @@ const Container = styled.div`
     justify-content: center;
     flex-direction: column;
     margin-top: 0px;
-    gap: 26px;
+    gap: 20px;
 
     @media (max-width: 768px) {
         margin-top: 60px;
         width: 100%;
-        gap: 2px;
+        gap: 12px;
     }
 `
 
@@ -41,7 +41,7 @@ const Texts = styled.div`
     padding: 2.5%;
 
     @media (max-width: 768px) {
-        padding: 2.5%;
+        padding: 5%;
     }
 
     & h1 {
@@ -65,6 +65,10 @@ const MobileFilterBar = styled.button`
     display: none;
     align-items: center;
     justify-content: space-between;
+
+    @media (max-width: 768px) {
+        padding: 5%;
+    }
 
     .left {
         display: flex;
@@ -112,7 +116,7 @@ const Content = styled.div`
 
     @media (max-width: 768px) {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        padding: 2.5%;
+        padding: 5%;
     }
 `
 
@@ -121,26 +125,25 @@ const Pagination = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 4px;
     height: 40px;
-    
 
     & button {
         background: var(--color--white);
         border: 1px solid var(--color--gray-6);
         color: var(--color-black-2);
-        padding: 6px 10px;
+        padding: 6px;
         height: 100%;
         cursor: pointer;
         border-radius: 0;
-        min-width: 36px;
+        width: 32px;
+        height: 32px;
     }
 
     & button.active {
         background: var(--color--primary);
         color: var(--color--white);
-        border-color: var(--color--primary);
-        font-weight: 600;
+        font-weight: 400;
     }
 
     @media (max-width: 420px) {

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, A11y } from "swiper/modules";
+import { Autoplay, A11y, FreeMode } from "swiper/modules";
 
 import { fetchCategoriesRaw } from '../../../services/categoryService'
 import { resolveImageUrl } from '../../../services/supabase'
@@ -45,6 +45,10 @@ const Container = styled.section`
             background-color: var(--color--white);
             overflow: hidden;
 
+            @media (max-width: 768px) {
+                height: 120px;
+            }
+
             & img {
                 width: 100%;
                 height: 100%;
@@ -73,6 +77,10 @@ const Container = styled.section`
                 font-weight: 500;
                 color: var(--color--black);
                 text-align: center;
+
+                @media (max-width: 768px) {
+                    font-size: 14px;
+                }
             }
     
             & span {
@@ -137,10 +145,10 @@ export default function Categorys() {
                     </div>
                 ) : (
                 <Swiper
-                    modules={[A11y]}
+                    modules={[A11y, FreeMode]}
                     loop={true}
-                    slidesPerView={2}
-                    slidesPerGroup={1}
+                    slidesPerView={3}
+                    freeMode={true}
                     spaceBetween={16}
                     a11y={{ enabled: true }}
                     lazyPreloadPrevNext={1}

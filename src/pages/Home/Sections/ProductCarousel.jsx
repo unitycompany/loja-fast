@@ -4,7 +4,7 @@ import ProductCard from "../../../components/product/ProductCard";
 import React from "react";
 import { fetchTopProducts } from "../../../services/productService";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, A11y } from "swiper/modules";
+import { Navigation, A11y, Autoplay } from "swiper/modules";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Skeleton from '../../../components/common/Skeleton'
 
@@ -54,11 +54,11 @@ const Text = styled.div`
     }
 
     & .carousel-nav.prev {
-        left: 10px;
+        left: 0px;
     }
 
     & .carousel-nav.next {
-        right: 10px;
+        right: 0px;
     }
 
     & h1 {
@@ -196,12 +196,13 @@ export default function ProductCarousel({
                 {hasItems ? (
                     <Carousel>
                         <Swiper
-                            modules={[Navigation, A11y]}
+                            modules={[Navigation, A11y, Autoplay]}
                             loop={true}
                             navigation={{
                                 nextEl: `.${nextClass}`,
                                 prevEl: `.${prevClass}`,
                             }}
+                            autoplay={{ delay: 4000, disableOnInteraction: true, pauseOnMouseEnter: true }}
                             slidesPerView={2}
                             breakpoints={{
                                 320: { slidesPerView: 2, spaceBetween: 8 },

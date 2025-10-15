@@ -31,12 +31,12 @@ const FilterContainer = styled.div`
 const Sidebar = styled.div`
     position: fixed;
     top: 60px;
-    right: 0;
-    width: 80%;
-    height: calc(100% - 60px);
+    left: 0;
+    width: 100%;
+    height: 80vh;
     background: var(--color--white);
     z-index: 1000;
-    padding: 20px;
+    padding: 0 20px;
     box-sizing: border-box;
     overflow-y: auto;
     display: ${props => props.open ? 'flex' : 'none'};
@@ -55,6 +55,11 @@ const Sidebar = styled.div`
         padding-bottom: 8px;
         border-radius: 0;
         box-shadow: var(--border-bottom);
+        background-color: var(--color--white);
+        padding: 20px 0;
+        z-index: 9999;
+        position: sticky;
+        top: 0px;
     }
 `;
 

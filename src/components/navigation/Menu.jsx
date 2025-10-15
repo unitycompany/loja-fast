@@ -7,13 +7,17 @@ import { XIcon, ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
 const Container = styled.div`
     width: 100%;
-    height: 100%;
+    /* Fill the visual viewport and work across mobile Safari variants */
+    height: 100vh;
+    height: 100dvh; /* override when supported */
     position: fixed;
     display: flex;
     align-items: center;
     justify-content: center;
     top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 100;
     pointer-events: none; /* default off, enabled when open */
 
@@ -26,26 +30,30 @@ const Container = styled.div`
     }
 `
 
-// const Bg = styled.div`
-//     position: fixed;
-//     z-index: -1;
-//     top: 0;
-//     left: 0;
-//     width: 100%;
-//     height: 100%;
-//     opacity: 0;
-//     transition: opacity 200ms ease;
-//     background-color: rgba(0,0,0,0.2);
+/* White background overlay to ensure Safari's bottom URL bar (glass) shows white, not the page. */
+const Bg = styled.div`
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    background-color: var(--color--white);
 
-//     ${props => props.$isOpen && css`
-//         opacity: 1;
-//     `}
-// `
+    ${props => props.$isOpen && css`
+        opacity: 1;
+    `}
+`
 
 const Main = styled.div`
     width: 100%;
     height: auto;
+    /* Fallback first, then modern viewport units to include iOS toolbars dynamics */
     min-height: calc(100vh - 70px);
+    min-height: calc(100dvh - 70px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -64,7 +72,10 @@ const Main = styled.div`
         min-width: auto;
         width: 100%;
         top: 60px;
+        /* account for the bottom bar and home indicator */
         min-height: calc(100vh - 60px);
+        min-height: calc(100dvh - 60px);
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
 
     ${props => props.$isOpen && css`
@@ -249,7 +260,7 @@ export default function Menu({
     return (
         <>
             <Container $isOpen={isOpen} aria-hidden={!isOpen}>
-                {/* <Bg $isOpen={isOpen} onClick={onClose} /> */}
+                <Bg $isOpen={isOpen} onClick={onClose} />
                 <Main $isOpen={isOpen} role="dialog" aria-modal="true">
                     <Header
                         onClick={() => {

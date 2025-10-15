@@ -15,14 +15,13 @@ const Wrapper = styled.div`
   gap: 32px;
   align-items: flex-start;
   width: 100%;
-  padding: 24px 16px;
   box-sizing: border-box;
   margin-top: 70px;
   padding: 2.5%;
 
   @media (max-width: 768px){
     flex-direction: column;  
-    padding: 2.5%;
+    padding: 5%;
   }
 `
 
@@ -32,14 +31,13 @@ const Left = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
   box-sizing: border-box;
   height: var(--product-detail-image-size);
-  max-height: 70vh;
+  min-height: 60vh;
 
   @media (max-width: 768px){
     width: 100%;  
-  max-height: 60vh;
+    min-height: 50vh;
   }
 
   img {
@@ -47,7 +45,9 @@ const Left = styled.div`
     height: 100%;
     max-height: 100%;
     display: block;
-    object-fit: contain;
+    object-fit: cover;
+    object-position: center;
+    border: 1px solid var(--color--gray-4);
   }
 `
 
@@ -57,7 +57,7 @@ const Right = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 28px;
+  gap: 22px;
   /* Tie brand/logo sizes to title using a CSS variable */
   --title-size: clamp(1.5rem, 1.1rem + 1.8vw, 2rem);
 
@@ -68,7 +68,7 @@ const Right = styled.div`
 
 const Brand = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: flex-start;
   width: 100%;
   
@@ -83,22 +83,33 @@ const Brand = styled.div`
     img {
         height: var(--brand-logo-size);
         max-height: var(--brand-logo-size);
-        width: auto;
-        max-width: min(180px, 40vw);
+        width: 100px;
+        height: 100px;
         object-fit: contain;
+
+        @media (max-width: 768px){
+          height: 60px;
+          width: 60px;
+        }
     }
   }
 
-  .brand-info { 
+  .product-info { 
     display:flex; 
     flex-direction:column; 
     gap:4px; 
+    width: fit-content;
+  
+    & h1 { 
+      font-weight: 400;
+      font-size: 32px;
+    
+      @media (max-width: 768px){
+        font-size: 22px;
+      }
+    }
   }
 
-  .brand-name { 
-    font-weight: 500;
-    font-size: 18px;
-  }
 `
 
 const Category = styled.div`
@@ -204,11 +215,11 @@ const Controls = styled.div`
     transition: background-color 160ms ease, box-shadow 160ms ease, transform 100ms ease;
   }
   & .cta:hover {
-    background-color: #2dbf56;
+    background-color: var(--color--green);
     box-shadow: 0 8px 16px rgba(64,158,13,0.18);
   }
   & .cta:active { transform: translateY(1px); }
-  & .cta:focus-visible { outline: 2px solid #2dbf56; outline-offset: 2px; }
+  & .cta:focus-visible { outline: 2px solid var(--color--green); outline-offset: 2px; }
 
   & button {
     height: 48px;
@@ -570,8 +581,8 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
             <img src={brandLogo || normalizedBrand?.logo} alt={normalizedBrand?.name || 'Marca'} />
                     </div>
                     <aside className="product-info">
-            <Category>{categoryLabel}</Category>
-            <Title>{product.name}</Title>
+                      <Category>{categoryLabel}</Category>
+                      <Title>{product.name}</Title>
                     </aside>
                 </Brand>
             )}
@@ -673,7 +684,7 @@ export default function Main({ product, selectedMeasureId, setSelectedMeasureId,
               flyToTarget(src, 'cart-button', { imageSrc: resolvedImages[0] || images[0] || null })
               emitCartAdded()
             }}
-            color="#409E0D"
+            color="#06402B"
           >
             <BagIcon />
           </ProductIcon>

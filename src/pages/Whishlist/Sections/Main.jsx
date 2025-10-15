@@ -22,6 +22,7 @@ const Container = styled.div`
 
     @media (max-width: 768px) {
         margin-top: 60px;
+        gap: 0;
     }
 `
 
@@ -36,7 +37,7 @@ const Texts = styled.div`
     padding: 2.5%;
 
     @media (max-width: 768px) {
-        padding: 2.5%;
+        padding: 5% 5% 2.5% 5%;
     }
 
     & h1 {
@@ -58,7 +59,7 @@ const Content = styled.div`
 
     @media (max-width: 768px) {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        padding: 2.5%;
+        padding: 5%;
     }
 `
 

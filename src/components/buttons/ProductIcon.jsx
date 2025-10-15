@@ -40,7 +40,8 @@ export default function ProductIcon ({
     color,
     onClick,
     active = false,
-    ariaLabel
+    ariaLabel,
+    className
 }) {
     return (
         <>
@@ -51,6 +52,7 @@ export default function ProductIcon ({
                 aria-pressed={active}
                 aria-label={ariaLabel}
                 type="button"
+                className={className}
             >
                 {children}
             </Container>

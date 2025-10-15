@@ -25,10 +25,17 @@ function AppShell() {
     will-change: opacity, transform;
   `
 
-  // Always scroll to top on route change
+  // Always scroll to top on route change (pathname, query or hash)
   useEffect(() => {
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }) } catch { window.scrollTo(0, 0) }
-  }, [location.pathname])
+    const instant = () => { try { window.scrollTo(0, 0) } catch {} }
+    // Use instant first to evitar mostrar posição antiga
+    instant()
+    // Smooth after a tiny delay to garantir layout montado
+    const t = setTimeout(() => {
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }) } catch { instant() }
+    }, 10)
+    return () => clearTimeout(t)
+  }, [location.pathname, location.search, location.hash])
 
   return (
     <>

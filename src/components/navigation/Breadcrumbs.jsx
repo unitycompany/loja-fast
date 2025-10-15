@@ -19,7 +19,6 @@ const Container = styled.nav`
     @media (max-width: 768px) {
         white-space: normal;
         overflow-x: visible;
-        padding: 0 12px;
     }
 
     & ul {

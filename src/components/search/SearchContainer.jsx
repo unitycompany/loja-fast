@@ -7,7 +7,8 @@ import { resolveImageUrl } from '../../services/supabase'
 
 const Container = styled.div`
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh; /* modern viewport units */
     position: fixed;
     display: flex;
     align-items: center;
@@ -33,7 +34,8 @@ const Bg = styled.div`
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh;
     opacity: 0;
     transition: opacity 200ms ease;
 
@@ -62,7 +64,7 @@ const Main = styled.div`
         min-width: auto;
         width: 90%;
         border-radius: 28px 28px 0 0;
-        padding-bottom: 16px;
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
 
     ${props => props.$isOpen && css`

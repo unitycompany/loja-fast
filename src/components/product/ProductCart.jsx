@@ -11,8 +11,7 @@ const Container = styled.div`
     width: 100%;
     height: auto;
     box-shadow: var(--border-bottom);
-    gap: 20px;
-    padding: 2.5% 2.5% 2.5% 2.5%;
+    padding: 2.5%;
     transition: all .1s ease-in-out;
     
     &:hover {
@@ -20,7 +19,7 @@ const Container = styled.div`
     }
 
     @media (max-width: 768px) {
-        padding: 3.5%;
+        padding: 2.5%;
     }
 `
 
@@ -50,8 +49,8 @@ const Remove = styled.button`
 `
 
 const Image = styled.div`
-    width: var(--product-thumb-size);
-    height: var(--product-thumb-size);
+    width: 120px;
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -59,10 +58,15 @@ const Image = styled.div`
     background-color: var(--color--gray-5);
     box-shadow: var(--border-full);
 
+    @media (max-width: 768px) {
+        width: 80px;
+        height: 80px;
+    }
+
     & img {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
         object-position: center;
     }
 `
@@ -73,7 +77,7 @@ const Texts = styled.div`
     align-items: flex-start;
     justify-content: center;
     gap: 6px;
-    width: auto;
+    width: 70%;
 
     @media (max-width: 768px) {
         gap: 4px;    
@@ -86,7 +90,7 @@ const Texts = styled.div`
         line-height: 1.1;
 
         @media (max-width: 768px) {
-            font-size: 14px;
+            font-size: 12px;
         }
     }
 
@@ -130,13 +134,17 @@ const Company = styled.div`
     width: auto;
 
     & img {
-        width: var(--brand-logo-thumb-size);
-        height: var(--brand-logo-thumb-size);
+        width: 28px;
+        height: 28px;
         object-fit: contain;
         border-radius: 42px;
-        padding: 4px;
+        padding: 2px;
         box-shadow: var(--border-full);
-        padding: 4px;
+
+        @media (max-width: 768px) {
+            width: 20px;
+            height: 20px;
+        }
     }
 
     & span {
@@ -192,8 +200,8 @@ const Amount = styled.div`
 
         @media (max-width: 768px) {
             font-size: 12px;
-            width: 20px;
-            height: 20px;
+            width: 12px;
+            height: 18px;
         }
     }
 `
@@ -255,12 +263,12 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-    width: 30%;
+    width: fit-content;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     height: 100%;
 `
 
@@ -299,7 +307,7 @@ export default function ProductCart({
                             {imageBrand ? (
                                 <img src={imageBrand} alt={brandName || 'Marca'} />
                             ) : (
-                                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--color--gray-5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'var(--color--gray)' }}>
+                                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--color--gray-5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'var(--color--gray)' }}>
                                     {(brandName || name || '').slice(0, 2).toUpperCase()}
                                 </div>
                             )}

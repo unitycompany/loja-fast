@@ -33,6 +33,7 @@ const Main = styled.main`
     position: relative;
     width: 100%;
     height: auto;
+    border: 1px solid red;
 `
 
 export default function Search() {

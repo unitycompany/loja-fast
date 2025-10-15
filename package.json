@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
   "prebuild": "node ./scripts/generate-robots.mjs && node ./scripts/generate-sitemap.mjs",
     "build": "vite build",
     "lint": "eslint .",

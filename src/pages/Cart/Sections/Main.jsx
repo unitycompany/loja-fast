@@ -38,7 +38,7 @@ const Texts = styled.div`
     padding: 2.5%;
 
     @media (max-width: 768px) {
-        padding: 2.5%;
+        padding: 5% 5% 2.5% 5%;
     }
 
     & h1 {
@@ -56,12 +56,12 @@ const Content = styled.div`
     justify-content: flex-start;
     flex-direction: row;
     position: relative;
-    gap: 20px;
+    gap: 16px;
     padding: 0 2.5%;
 
     @media (max-width: 768px) {
         flex-direction: column;
-        padding: 0 2.5%;
+        padding: 0 5%;
     }
 `
 
@@ -90,6 +90,7 @@ const Cart = styled.div`
         padding: 2.5% 5%;
         background-color: var(--color--black);
         color: var(--color--white);
+        border: 1px solid red;
 
         & svg {
             font-size: 28px;   
@@ -119,7 +120,7 @@ const breadcrumbs = [
 ]
 
 export default function MainCart() {
-    const { items: cartItems, removeItem, addItem } = useCart()
+    const { items: cartItems, removeItem, addItem, updateItemQuantity } = useCart()
     const [items, setItems] = React.useState([])
 
     React.useEffect(() => {
@@ -228,8 +229,7 @@ export default function MainCart() {
                                     onRemove={() => removeItem((it) => it.sku === cartItem.sku && it.unitKey === cartItem.unitKey)}
                                     onUpdateQuantity={(qty) => {
                                         const safeQty = Math.max(1, Number(qty) || 1)
-                                        removeItem((it) => it.sku === cartItem.sku && it.unitKey === cartItem.unitKey)
-                                        addItem({ ...cartItem, quantity: safeQty })
+                                        updateItemQuantity(cartItem.sku, cartItem.unitKey, safeQty)
                                     }}
                                 />
                             ))
