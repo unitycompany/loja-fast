@@ -1,0 +1,13 @@
+# Redirects for SPA (Single Page Application)
+# This file ensures all routes are handled by index.html
+# except for actual files and API routes
+
+# API routes
+/api/*  /api/:splat  200
+
+# Static files
+/assets/*  /assets/:splat  200
+/product-feed.xml  /product-feed.xml  200
+
+# All other routes go to index.html for client-side routing
+/*  /index.html  200
