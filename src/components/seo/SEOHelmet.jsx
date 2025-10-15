@@ -27,6 +27,10 @@ export default function SEOHelmet({
 	twitterCreator,
 	// Product specific
 	product = {},
+	// Open Graph custom overrides
+	openGraph = {},
+	// Twitter custom overrides
+	twitter = {},
 	// Schema.org JSON-LD
 	schema,
 	// Additional meta tags
