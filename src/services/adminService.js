@@ -34,6 +34,20 @@ function buildProductPayload(product, { includeCategoryPath = true } = {}) {
   const measureTerms = Array.isArray(product.measures) ? product.measures.flatMap(m => [m?.id, m?.label]).filter(Boolean) : []
   const augmentedSearchTerms = Array.from(new Set([...baseTerms, ...unitTerms, ...measureTerms]))
 
+  // Determina se o produto deve ser ativo
+  // Ativo = tem pelo menos uma imagem válida
+  const hasValidImage = Array.isArray(product.images) && 
+                        product.images.length > 0 && 
+                        product.images[0] && 
+                        product.images[0] !== '' && 
+                        product.images[0] !== 'null'
+  
+  // Se is_active foi explicitamente definido, usa esse valor
+  // Caso contrário, define baseado na presença de imagem
+  const isActive = typeof product.is_active === 'boolean' 
+    ? product.is_active 
+    : (typeof product.isActive === 'boolean' ? product.isActive : hasValidImage)
+
   const payload = {
     id: product.id || undefined,
     slug: product.slug,
@@ -47,6 +61,7 @@ function buildProductPayload(product, { includeCategoryPath = true } = {}) {
     mpn: product.mpn,
     availability: product.availability,
     condition: product.condition,
+    is_active: isActive,
     shortdescription: product.shortDescription ?? product.shortdescription ?? null,
     description: product.description ?? product.description,
     long_description: product.longDescription ?? product.long_description ?? null,
@@ -279,6 +294,101 @@ export async function upsertProduct(product) {
       return await attempt(categoryPathColumnAvailable, false)
     }
     throw error
+  }
+}
+
+export async function toggleProductActive(productId, isActive) {
+  try {
+    const mod = await import('./adminAuth')
+    await mod.ensureAdminSession()
+  } catch (e) {
+    // continue
+  }
+
+  const { data, error } = await supabase
+    .from('products')
+    .update({ is_active: isActive })
+    .eq('id', productId)
+    .select()
+  
+  if (error) throw error
+  return data && data[0]
+}
+
+export async function bulkToggleProductsActive(productIds, isActive) {
+  try {
+    const mod = await import('./adminAuth')
+    await mod.ensureAdminSession()
+  } catch (e) {
+    // continue
+  }
+
+  const { data, error } = await supabase
+    .from('products')
+    .update({ is_active: isActive })
+    .in('id', productIds)
+    .select()
+  
+  if (error) throw error
+  return data
+}
+
+export async function activateProductsWithImages() {
+  try {
+    const mod = await import('./adminAuth')
+    await mod.ensureAdminSession()
+  } catch (e) {
+    // continue
+  }
+
+  // Busca todos os produtos
+  const { data: products, error: fetchError } = await supabase
+    .from('products')
+    .select('id, images')
+  
+  if (fetchError) throw fetchError
+
+  // Separa produtos com e sem imagem
+  const withImages = products.filter(p => 
+    Array.isArray(p.images) && 
+    p.images.length > 0 && 
+    p.images[0] && 
+    p.images[0] !== '' && 
+    p.images[0] !== 'null'
+  )
+  
+  const withoutImages = products.filter(p => 
+    !Array.isArray(p.images) || 
+    p.images.length === 0 || 
+    !p.images[0] || 
+    p.images[0] === '' || 
+    p.images[0] === 'null'
+  )
+
+  // Ativa produtos com imagem
+  if (withImages.length > 0) {
+    const { error: activateError } = await supabase
+      .from('products')
+      .update({ is_active: true })
+      .in('id', withImages.map(p => p.id))
+    
+    if (activateError) throw activateError
+  }
+
+  // Desativa produtos sem imagem
+  if (withoutImages.length > 0) {
+    const { error: deactivateError } = await supabase
+      .from('products')
+      .update({ is_active: false })
+      .in('id', withoutImages.map(p => p.id))
+    
+    if (deactivateError) throw deactivateError
+  }
+
+  return {
+    activated: withImages.length,
+    deactivated: withoutImages.length,
+    total: products.length
   }
 }
 

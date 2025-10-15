@@ -35,6 +35,9 @@ export async function fetchProducts({ page = 1, perPage = 9, orderBy = 'created_
 
   let query = supabase.from('products').select('*', { count: 'exact' })
 
+  // Filtrar apenas produtos ativos (visíveis no site)
+  query = query.eq('is_active', true)
+
   // basic text search across common fields
   if (q && String(q).trim()) {
     const pattern = `%${String(q).trim()}%`
@@ -191,7 +194,7 @@ export async function fetchTopProducts({ limit = 10, category = null, categories
   if (subcategory) keys.add(subcategory)
   if (Array.isArray(categories)) categories.filter(Boolean).forEach((value) => keys.add(value))
 
-  const baseQuery = () => supabase.from('products').select('*').order('created_at', { ascending: false }).limit(limit)
+  const baseQuery = () => supabase.from('products').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(limit)
 
   if (keys.size === 0) {
     const { data, error } = await baseQuery()
