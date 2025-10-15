@@ -137,8 +137,16 @@ export default function ProductCarousel({
         setLoading(true);
         try {
             const [primary, ...rest] = compositeKeys;
-            const data = await fetchTopProducts({ limit, category: primary, categories: rest });
-            if (mountedRef.current) setItems(data);
+            // Busca TODOS os produtos da categoria (sem limite)
+            const data = await fetchTopProducts({ limit: 9999, category: primary, categories: rest });
+            
+            // Embaralha os produtos aleatoriamente
+            const shuffled = data.sort(() => Math.random() - 0.5);
+            
+            // Pega apenas os primeiros 12 produtos embaralhados
+            const sliced = shuffled.slice(0, limit);
+            
+            if (mountedRef.current) setItems(sliced);
         } catch (error) {
             console.error('Falha ao carregar produtos do carrossel', error);
             if (mountedRef.current) setItems([]);
