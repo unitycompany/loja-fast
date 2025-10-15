@@ -21,6 +21,7 @@ const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://loja.fastsistemasconstru
 
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const DEFAULT_OG_IMAGE = process.env.DEFAULT_OG_IMAGE || `${SITE_ORIGIN}/vite.svg`
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
@@ -96,15 +97,15 @@ function buildHead({ title, description, canonical, image, product }) {
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(desc)}" />
     <meta property="og:url" content="${canonical}" />
-    ${image ? `<meta property="og:image" content="${image}" />` : ''}
+  <meta property="og:image" content="${image || DEFAULT_OG_IMAGE}" />
     ${brand ? `<meta property="product:brand" content="${escapeHtml(brand)}" />` : ''}
     ${price != null ? `<meta property="product:price:amount" content="${price}" />` : ''}
-    ${currency ? `<meta property="product:price:currency" content="${currency}" />` : ''}
+  <meta property="product:price:currency" content="${currency}" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(desc)}" />
-    ${image ? `<meta name="twitter:image" content="${image}" />` : ''}
+    <meta name="twitter:image" content="${image || DEFAULT_OG_IMAGE}" />
 
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/vite.svg" type="image/svg+xml" />
