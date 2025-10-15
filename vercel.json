@@ -8,6 +8,7 @@
     }
   ],
   "routes": [
+    { "src": "/produto/(.*)", "dest": "/produto/$1/index.html" },
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
