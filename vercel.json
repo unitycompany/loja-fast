@@ -9,6 +9,8 @@
   ],
   "routes": [
     { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/product-feed.xml", "dest": "/product-feed.xml" },
+    { "src": "/api/product-feed.xml", "dest": "/api/product-feed" },
     { "src": "/produto/(.*)", "dest": "/api/meta-tags" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]

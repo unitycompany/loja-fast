@@ -91,11 +91,11 @@ https://seu-dominio.com/product-feed.xml
 1. Escolha **Busca programada**
 2. Cole a URL do seu feed:
    ```
-   https://unitycompany.github.io/loja-fast/product-feed.xml
+   https://loja-fast.vercel.app/product-feed.xml
    ```
-   **OU** (se usar a API dinâmica):
+   **OU** (se usar a API dinâmica - recomendado):
    ```
-   https://unitycompany.github.io/loja-fast/api/product-feed.xml
+   https://loja-fast.vercel.app/api/product-feed.xml
    ```
 
 3. Escolha a frequência de atualização:

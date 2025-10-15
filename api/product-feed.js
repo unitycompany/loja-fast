@@ -38,14 +38,27 @@ function formatPrice(price, currency = 'BRL') {
 }
 
 function resolveImageUrl(product) {
-  if (product.imageUrl && product.imageUrl.startsWith('http')) {
+  if (product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.startsWith('http')) {
     return product.imageUrl
   }
   
   if (product.images && Array.isArray(product.images) && product.images.length > 0) {
     const img = product.images[0]
-    if (img.startsWith('http')) return img
-    return `${SUPABASE_URL}/storage/v1/object/public/product-images/${img}`
+    
+    // Verifica se é string antes de usar startsWith
+    if (typeof img === 'string') {
+      if (img.startsWith('http')) return img
+      return `${SUPABASE_URL || SITE_URL}/storage/v1/object/public/product-images/${img}`
+    }
+    
+    // Se for objeto com propriedade url ou src
+    if (img && typeof img === 'object') {
+      const imgUrl = img.url || img.src || img.path
+      if (imgUrl && typeof imgUrl === 'string') {
+        if (imgUrl.startsWith('http')) return imgUrl
+        return `${SUPABASE_URL || SITE_URL}/storage/v1/object/public/product-images/${imgUrl}`
+      }
+    }
   }
   
   return `${SITE_URL}/placeholder-product.jpg`
