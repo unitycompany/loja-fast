@@ -23,10 +23,41 @@ export function setUTMString(utmString) {
  * @returns {string} Path with UTM appended
  */
 export function addUTM(path) {
-	if (!globalUTMString) return path
+	console.log('🔍 addUTM called with path:', path)
+	
+	if (!path) {
+		console.log('❌ No path provided, returning:', path)
+		return path
+	}
+	
+	// Clean path - remove leading slash from external URLs (e.g., /https://... -> https://...)
+	let cleanPath = path
+	if (path.startsWith('/http')) {
+		cleanPath = path.substring(1)
+		console.log('🧹 Cleaned path from', path, 'to', cleanPath)
+	}
+	
+	// If there's no UTM to add, just return the cleaned path as-is
+	if (!globalUTMString) {
+		console.log('✅ No UTM string, returning cleaned path:', cleanPath)
+		return cleanPath
+	}
 	
 	try {
-		const url = new URL(path, window.location.origin)
+		// Check if it's an external URL (starts with http:// or https://)
+		const isExternalUrl = /^https?:\/\//i.test(cleanPath)
+		console.log('🔍 isExternalUrl:', isExternalUrl)
+		
+		let url
+		if (isExternalUrl) {
+			// For external URLs, parse directly without base URL
+			url = new URL(cleanPath)
+			console.log('🌐 External URL parsed:', url.toString())
+		} else {
+			// For internal paths, use origin as base
+			url = new URL(cleanPath, window.location.origin)
+			console.log('🏠 Internal path parsed:', url.toString())
+		}
 		
 		// If path already has query params, append UTM with &, otherwise use ?
 		if (url.search) {
@@ -45,13 +76,22 @@ export function addUTM(path) {
 			url.search = globalUTMString.replace(/^\?/, '')
 		}
 		
-		return url.pathname + url.search + url.hash
-	} catch {
-		// Fallback: simple string concatenation
-		if (path.includes('?')) {
-			return `${path}${globalUTMString.replace('?', '&')}`
+		// Return full URL for external links, just path for internal
+		if (isExternalUrl) {
+			const result = url.toString()
+			console.log('✅ Returning external URL:', result)
+			return result
 		}
-		return `${path}${globalUTMString}`
+		const result = url.pathname + url.search + url.hash
+		console.log('✅ Returning internal path:', result)
+		return result
+	} catch (error) {
+		console.log('❌ Error in addUTM:', error)
+		// Fallback: simple string concatenation
+		if (cleanPath.includes('?')) {
+			return `${cleanPath}${globalUTMString.replace('?', '&')}`
+		}
+		return `${cleanPath}${globalUTMString}`
 	}
 }
 
