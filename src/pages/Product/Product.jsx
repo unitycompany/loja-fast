@@ -8,7 +8,8 @@ import ProductCarousel from '../Home/Sections/ProductCarousel'
 import { fetchProductBySlug } from '../../services/productService'
 import SEOHelmet from '../../components/seo/SEOHelmet'
 import { buildProductSeo } from '../../lib/seo'
-import Loader from '../../components/common/Loader'
+import CenteredLoader from '../../components/common/CenteredLoader'
+import { ProductDetailSkeleton } from '../../components/common/SkeletonComponents'
 
 const Container = styled.div`
     display: flex;
@@ -69,8 +70,24 @@ export default function Product() {
         }
     }, [product])
 
-    if (loading) return <Container style={{ padding: '40px 20px' }}><Loader label="Carregando produto..." size={28} /></Container>
-    if (error || !product) return <Container><h1>Produto não encontrado</h1></Container>
+    if (loading) {
+        return (
+            <Container>
+                <ProductDetailSkeleton />
+            </Container>
+        )
+    }
+    
+    if (error || !product) {
+        return (
+            <Container style={{ padding: '40px 20px', minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <h1 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--color--black-3)' }}>Produto não encontrado</h1>
+                    <p style={{ color: 'var(--color--gray-4)' }}>O produto que você está procurando não existe ou foi removido.</p>
+                </div>
+            </Container>
+        )
+    }
 
     // Compute current selection snapshot for SEO/meta
     const units = Array.isArray(product?.units) ? product.units : []

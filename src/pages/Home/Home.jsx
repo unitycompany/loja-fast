@@ -9,6 +9,8 @@ import { resolveImageUrl } from '../../services/supabase'
 import { fetchCategories } from '../../services/categoryService'
 import SEOHelmet from "../../components/seo/SEOHelmet"
 import { ROUTE_SEO, SITE_CONFIG, generateSchema } from '../../lib/seoConfig'
+import CenteredLoader from "../../components/common/CenteredLoader"
+import { ProductCarouselSkeleton } from "../../components/common/SkeletonComponents"
 
 const Container = styled.main`
     display: flex;
@@ -66,6 +68,7 @@ export default function Home() {
     const [group2, setGroup2] = useState([])
     const [group3, setGroup3] = useState([])
     const [homeCategories, setHomeCategories] = useState([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         let mounted = true
@@ -113,9 +116,13 @@ export default function Home() {
                     .filter(category => (category.slug || category.id) !== 'argamassas-impermeabilizantes')
                     .sort((a, b) => (b.numberProducts ?? 0) - (a.numberProducts ?? 0))
                 setHomeCategories(filtered.slice(0, 4))
+                setLoading(false)
             } catch (error) {
                 console.error('Failed to load home categories', error)
-                if (mounted) setHomeCategories([])
+                if (mounted) {
+                    setHomeCategories([])
+                    setLoading(false)
+                }
             }
         }
         loadCategories()
@@ -126,6 +133,25 @@ export default function Home() {
     const homeSEO = ROUTE_SEO.home
     const homeSchema = generateSchema('WebSite')
     const organizationSchema = generateSchema('Organization')
+
+    if (loading) {
+        return (
+            <>
+                <SEOHelmet
+                    title={homeSEO.title}
+                    description={homeSEO.description}
+                    canonicalUrl={`${SITE_CONFIG.url}${homeSEO.path}`}
+                    image={`${SITE_CONFIG.url}/og-home.jpg`}
+                    type="website"
+                    keywords={homeSEO.keywords}
+                    schema={[homeSchema, organizationSchema]}
+                />
+                <Container>
+                    <CenteredLoader label="Carregando página inicial..." overlay={false} />
+                </Container>
+            </>
+        )
+    }
 
     return (
         <>

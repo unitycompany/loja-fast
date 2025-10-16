@@ -11,6 +11,7 @@ import Product from "../pages/Product/Product";
 import Cart from "../pages/Cart/Cart";
 import WhishList from "../pages/Whishlist/WhishList";
 import Admin from "../pages/Admin";
+import { UTMProvider } from "../contexts/UTMContext";
 
 function AppShell() {
   const location = useLocation();
@@ -60,7 +61,9 @@ function App() {
   const basename = import.meta.env.BASE_URL || '/'
   return (
     <BrowserRouter basename={basename}>
-      <AppShell />
+      <UTMProvider>
+        <AppShell />
+      </UTMProvider>
     </BrowserRouter>
   );
 }

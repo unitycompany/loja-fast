@@ -114,6 +114,7 @@ const Button = styled.div`
     flex-direction: column;
     justify-content: center;
     padding: 2.5% 0 0 0;
+    position: relative;
 
     & button {
         width: 100%;

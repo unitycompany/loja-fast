@@ -6,7 +6,7 @@ import { Autoplay, A11y, FreeMode } from "swiper/modules";
 import { fetchCategoriesRaw } from '../../../services/categoryService'
 import { resolveImageUrl } from '../../../services/supabase'
 import { useEffect, useState } from 'react'
-import Skeleton from '../../../components/common/Skeleton'
+import { CategorySkeleton } from '../../../components/common/SkeletonComponents'
 
 const Container = styled.section`
     width: 100%;
@@ -132,15 +132,9 @@ export default function Categorys() {
         <>
             <Container>
                 {loading ? (
-                    <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 16 }}>
+                    <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 16, padding: '20px' }}>
                         {Array.from({ length: 7 }).map((_, i) => (
-                            <div key={`cat-s-${i}`}>
-                                <Skeleton width="100%" height={150} />
-                                <div style={{ height: 8 }} />
-                                <Skeleton width="60%" height={16} />
-                                <div style={{ height: 4 }} />
-                                <Skeleton width="40%" height={12} />
-                            </div>
+                            <CategorySkeleton key={`cat-s-${i}`} />
                         ))}
                     </div>
                 ) : (

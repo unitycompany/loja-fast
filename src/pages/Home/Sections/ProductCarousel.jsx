@@ -6,7 +6,7 @@ import { fetchTopProducts } from "../../../services/productService";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, A11y, Autoplay } from "swiper/modules";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import Skeleton from '../../../components/common/Skeleton'
+import { ProductCardSkeleton } from '../../../components/common/SkeletonComponents'
 
 const Container = styled.section`
     width: 100%;
@@ -246,13 +246,7 @@ export default function ProductCarousel({
                         {loading ? (
                             <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                                 {Array.from({ length: 4 }).map((_, i) => (
-                                    <div key={`pc-s-${i}`} style={{ background: '#fff', padding: 12, border: '1px solid var(--color--gray-6)' }}>
-                                        <Skeleton width="100%" height={180} />
-                                        <div style={{ height: 8 }} />
-                                        <Skeleton width="60%" height={16} />
-                                        <div style={{ height: 6 }} />
-                                        <Skeleton width="40%" height={16} />
-                                    </div>
+                                    <ProductCardSkeleton key={`pc-s-${i}`} />
                                 ))}
                             </div>
                         ) : (

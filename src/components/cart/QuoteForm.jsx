@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import { N8N_WEBHOOK_URL, WHATS_TARGET_E164, WHATS_MSG } from '../../lib/constants'
@@ -16,72 +17,359 @@ const popIn = keyframes`
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  animation: ${fadeIn} 160ms ease;
-  padding: 24px;
+  z-index: 9999;
+  animation: ${fadeIn} 180ms ease;
+  padding: 16px;
   overflow-y: auto;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
+  }
+
+  @media (max-width: 640px) {
+    padding: 8px;
+    align-items: flex-start;
   }
 `
 
 const Modal = styled.div`
-  width: 96%;
-  max-width: 560px;
+  width: 100%;
+  position: relative;
+  max-width: 680px;
   background: #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-  border-radius: 8px;
-  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  animation: ${popIn} 180ms ease;
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
+  animation: ${popIn} 200ms ease;
+  max-height: 90vh;
+  overflow: hidden;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
+
+  @media (max-width: 640px) {
+    max-width: 100%;
+    max-height: 95vh;
+  }
 `
 
-const Title = styled.h3`
-  margin: 0;
-  font-size: 20px;
+const ModalBody = styled.div`
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
+
+  @media (max-width: 640px) {
+    padding: 20px 16px;
+  }
+`
+
+const SectionTitle = styled.h4`
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 400;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 16px;
+    background: var(--color--green, #16a34a);
+    border-radius: 2px;
+  }
+`
+
+const CartPreview = styled.div`
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 16px;
+`
+
+const TableWrapper = styled.div`
+  overflow-x: auto;
+  max-height: 140px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f3f4f6;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+`
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  thead {
+    background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+
+    @media (max-width: 640px) {
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 120ms ease;
+
+    &:hover {
+      background: #f9fafb;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  td {
+    padding: 12px 16px;
+    color: #4b5563;
+    vertical-align: middle;
+
+    @media (max-width: 640px) {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+  }
+
+  .product-name {
+    font-weight: 500;
+    color: #111827;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (max-width: 640px) {
+      max-width: 140px;
+    }
+  }
+
+  .sku {
+    color: #6b7280;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+
+    @media (max-width: 640px) {
+      font-size: 12px;
+    }
+  }
+
+  .quantity {
+    text-align: center;
+    font-weight: 600;
+    color: #059669;
+  }
+
+  .unit-measure {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .price,
+  .subtotal {
+    text-align: right;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .subtotal {
+    color: #111827;
+    font-weight: 600;
+  }
+`
+
+const TotalRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #f9fafb, #fff);
+  border-top: 1px solid #e5e7eb;
+  font-size: 18px;
   font-weight: 600;
-  color: #111;
+  color: #111827;
+
+  @media (max-width: 640px) {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+
+  span:first-child {
+    color: #374151;
+  }
+
+  span:last-child {
+    color: var(--color--green, #16a34a);
+    font-variant-numeric: tabular-nums;
+  }
+
+  span:last-child::before {
+    content: 'A partir de: ';
+    font-weight: 400;
+    color: #6b7280;
+    font-size: 14px;
+  }
 `
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 
-  label { font-size: 14px; color: #333; }
-  input { height: 40px; padding: 0 12px; border: 1px solid #ddd; outline: none; }
-  input:focus { border-color: var(--color--primary, #1f2937); }
-  .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
-  button { height: 40px; padding: 0 16px; border: 0; cursor: pointer; }
-  .submit { background: var(--color--green, #16a34a); color: #fff; }
-  .cancel { background: #eee; color: #333; }
-  .error { font-size: 12px; color: #b91c1c; }
-`
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
-const CartPreview = styled.div`
-  border: 1px solid #eee;
-  border-radius: 6px;
-  padding: 10px;
-  background: #fafafa;
-  max-height: 200px;
-  overflow: auto;
+  label {
+    font-size: 12px;
+    font-weight: 400;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
 
-  table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 13px; }
-  th { background: #f7f7f7; position: sticky; top: 0; }
+  input {
+    height: 38px;
+    padding: 0px;
+    border-bottom: 1px solid #d1d5db;
+    outline: none;
+    font-size: 14px;
+    border-radius: 0;
+    transition: all 140ms ease;
+    background: #fff;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    @media (max-width: 640px) {
+      height: 42px;
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+  }
+
+  .error {
+    font-size: 13px;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+
+    &::before {
+      content: '⚠';
+      font-size: 14px;
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid #f3f4f6;
+
+    @media (max-width: 640px) {
+      flex-direction: column-reverse;
+      gap: 10px;
+    }
+  }
+
+  button {
+    height: 44px;
+    width: 100%;
+    padding: 0 24px;
+    border: 0;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 400;
+    transition: all 140ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+
+    @media (max-width: 640px) {
+      width: 100%;
+      height: 46px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &.submit {
+      background: var(--color--green, #16a34a);
+      color: #fff;
+      border-radius: 0;
+
+      &:hover:not(:disabled) {
+        background: #15803d;
+        transform: translateY(-1px);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+    }
+
+    &.cancel {
+      background: #f3f4f6;
+      color: #4b5563;
+
+      &:hover {
+        background: #e5e7eb;
+      }
+    }
+  }
 `
 
 // constants centralized in lib/constants
@@ -136,6 +424,14 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
     }
   }, [open])
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') onClose?.() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
   const sourceItems = Array.isArray(itemsOverride) ? itemsOverride : items
   const cartRows = useMemo(()=> (Array.isArray(sourceItems) ? sourceItems : []).map(i => ({
     name: i.name,
@@ -170,8 +466,8 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
     try {
       const q = parseQueryParams()
       const payloadArray = [{
-        id: generateUniqueId('fs-ORCAMENTO'),
-        form_name: 'FORMULARIO-ORCAMENTO',
+        id: generateUniqueId('ECOMMERCE'),
+        form_name: 'ECOMMERCE',
         site: window.location.hostname,
         page_url: window.location.href,
         submitted_at_iso: new Date().toISOString(),
@@ -211,42 +507,103 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
   }
 
   if (!open) return null
-  return (
-    <Overlay onClick={onClose}>
+  if (typeof document === 'undefined') return null
+
+  const formatPrice = (val) => {
+    const num = Number(val || 0)
+    return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  }
+
+  return createPortal(
+    <Overlay role="dialog" aria-modal="true" onClick={onClose}>
       <Modal onClick={e=>e.stopPropagation()}>
-        <Title>Solicitar orçamento</Title>
+        <ModalBody>
+          {cartRows.length > 0 && (
+            <>
+              <SectionTitle>Produtos Selecionados</SectionTitle>
+              <CartPreview>
+                <TableWrapper>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <th>Produto</th>
+                        <th className="quantity">Qtd</th>
+                        <th className="subtotal">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cartRows.map((row, idx) => (
+                        <tr key={idx}>
+                          <td className="product-name" title={row.name}>{row.name}</td>
+                          <td className="quantity">{row.quantity}</td>
+                          <td className="subtotal">{formatPrice(row.subtotal)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </TableWrapper>
+                <TotalRow>
+                  <span>Total</span>
+                  <span>{formatPrice(total)}</span>
+                </TotalRow>
+              </CartPreview>
+            </>
+          )}
 
-        {/* Removed on-screen items table to keep the form clean. CSV and payload remain intact. */}
+          <SectionTitle>Seus Dados</SectionTitle>
+          <Form id="contactForm" onSubmit={handleSubmit(onSubmit)}>
+            <div className="form-group">
+              <label htmlFor="name">Nome completo *</label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Seu nome completo"
+                autoComplete="name"
+                {...register('name', { required: true })}
+              />
+              {errors.name && <div className="error">Por favor, informe seu nome</div>}
+            </div>
 
-        <Form id="contactForm" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label htmlFor="name">Nome</label>
-            <input id="name" type="text" placeholder="Seu nome" {...register('name', { required: true })} />
-            {errors.name && <div className="error">Informe seu nome</div>}
-          </div>
-          <div>
-            <label htmlFor="email">E-mail</label>
-            <input id="email" type="email" placeholder="email@exemplo.com" {...register('email', { required: true })} />
-            {errors.email && <div className="error">Informe um e-mail válido</div>}
-          </div>
-          <div>
-            <label htmlFor="phone">Telefone</label>
-            <input id="phone" type="tel" placeholder="(00) 00000-0000" {...register('phone', { required: true, minLength: 8 })} onInput={(e)=>{
-              // light mask: keep digits, format as (xx) xxxxx-xxxx
-              const d = e.target.value.replace(/\D+/g,'').slice(0,11)
-              const p1 = d.slice(0,2)
-              const p2 = d.length>2 ? d.slice(2,7) : ''
-              const p3 = d.length>7 ? d.slice(7,11) : ''
-              e.target.value = d.length<=2 ? d : `(${p1}) ${p2}${p3?'-'+p3:''}`
-            }} />
-            {errors.phone && <div className="error">Informe seu telefone</div>}
-          </div>
-          <div className="actions">
-            <button type="button" className="cancel" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="submit" disabled={submitting}>{submitting ? 'Enviando...' : 'Enviar'}</button>
-          </div>
-        </Form>
+            <div className="form-group">
+              <label htmlFor="email">E-mail *</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="seu@email.com"
+                autoComplete="email"
+                {...register('email', { required: true })}
+              />
+              {errors.email && <div className="error">Por favor, informe um e-mail válido</div>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone">Telefone / WhatsApp *</label>
+              <input
+                id="phone"
+                type="tel"
+                placeholder="(00) 00000-0000"
+                autoComplete="tel"
+                {...register('phone', { required: true, minLength: 8 })}
+                onInput={(e)=>{
+                  const d = e.target.value.replace(/\D+/g,'').slice(0,11)
+                  const p1 = d.slice(0,2)
+                  const p2 = d.length>2 ? d.slice(2,7) : ''
+                  const p3 = d.length>7 ? d.slice(7,11) : ''
+                  e.target.value = d.length<=2 ? d : `(${p1}) ${p2}${p3?'-'+p3:''}`
+                }}
+              />
+              {errors.phone && <div className="error">Por favor, informe seu telefone</div>}
+            </div>
+
+            <div className="actions">
+              <button type="submit" className="submit" disabled={submitting}>
+                {submitting ? '⏳ Enviando...' : 'Solicitar Orçamento'}
+              </button>
+            </div>
+          </Form>
+        </ModalBody>
       </Modal>
-    </Overlay>
+    </Overlay>,
+    document.body
   )
 }

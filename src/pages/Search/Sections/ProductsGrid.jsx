@@ -10,8 +10,7 @@ import { fetchProducts, suggestProducts } from '../../../services/productService
 import { useSearch as useSmartSearch } from '../../../hooks/useSearch'
 import { fetchCategories } from '../../../services/categoryService'
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
-import Loader from '../../../components/common/Loader'
-import Skeleton from '../../../components/common/Skeleton'
+import { ProductGridSkeleton } from '../../../components/common/SkeletonComponents'
 
 const Container = styled.div`
     height: auto;
@@ -387,46 +386,38 @@ export default function ProductsGrid({
                     </div>
                     <div className="count">{loading ? '...' : visibleProducts.length}</div>
                 </MobileFilterBar>
-                <Content>
-                    {loading ? (
-                        <>
-                            <Loader label="Carregando resultados..." />
-                            {Array.from({ length: 6 }).map((_, i) => (
-                                <div key={`s-${i}`} style={{ width: '100%', padding: 12 }}>
-                                    <Skeleton width="100%" height={180} />
-                                    <div style={{ height: 8 }} />
-                                    <Skeleton width="60%" height={16} />
-                                    <div style={{ height: 6 }} />
-                                    <Skeleton width="90%" height={16} />
-                                </div>
-                            ))}
-                        </>
-                    ) : null}
-                    {(!loading && visibleProducts.length === 0) ? (
-                        <div style={{ padding: '2.5%', width: '100%' }}>
-                            <h3>Nenhum resultado encontrado</h3>
-                            {suggestions && suggestions.length > 0 ? (
-                                <>
-                                    <p>Talvez você esteja procurando:</p>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-                                        {suggestions.map(s => (
-                                            <ProductCard key={s.slug} product={s} />
-                                        ))}
-                                    </div>
-                                </>
-                            ) : (
-                                <p>Tente usar palavras-chave diferentes ou verifique a ortografia.</p>
-                            )}
-                        </div>
-                    ) : (
-                        visibleProducts.map((product) => (
-                            <ProductCard 
-                                key={product.slug}
-                                product={product}
-                            />
-                        ))
-                    )}
-                </Content>
+                {loading ? (
+                    <div style={{ width: '100%', padding: '0 2.5%' }}>
+                        <ProductGridSkeleton count={perPage} />
+                    </div>
+                ) : (
+                    <Content>
+                        {visibleProducts.length === 0 ? (
+                            <div style={{ padding: '2.5%', width: '100%', gridColumn: '1 / -1' }}>
+                                <h3>Nenhum resultado encontrado</h3>
+                                {suggestions && suggestions.length > 0 ? (
+                                    <>
+                                        <p>Talvez você esteja procurando:</p>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                                            {suggestions.map(s => (
+                                                <ProductCard key={s.slug} product={s} />
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p>Tente usar palavras-chave diferentes ou verifique a ortografia.</p>
+                                )}
+                            </div>
+                        ) : (
+                            visibleProducts.map((product) => (
+                                <ProductCard 
+                                    key={product.slug}
+                                    product={product}
+                                />
+                            ))
+                        )}
+                    </Content>
+                )}
 
                 <Pagination>
                     <button
