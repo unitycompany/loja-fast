@@ -7,6 +7,7 @@ import { formatCurrency } from "../../lib/formatters";
 import { useCart } from "../../contexts/CardContext";
 import { flyToTarget, emitCartAdded, emitWishlistToggled } from "../../lib/animations";
 import { resolveImageUrl } from "../../services/supabase";
+import { addUTM } from "../../utils/url";
 
 const Container = styled.div`
     width: 100%;
@@ -411,7 +412,7 @@ export default function ProductCard({
             return
         }
         const origin = typeof window !== 'undefined' ? window.location.origin : ''
-        const shareUrl = `${origin}/produto/${productSlug}`
+        const shareUrl = `${origin}${addUTM(`/produto/${productSlug}`)}`
         const shareText = productCategory ? `${productName} · ${productCategory}` : productName
         try {
             if (typeof navigator !== 'undefined' && navigator.share) {
@@ -434,7 +435,7 @@ export default function ProductCard({
     }
 
     const goToProduct = () => {
-        if (productSlug) window.location.href = `/produto/${productSlug}`
+        if (productSlug) window.location.href = addUTM(`/produto/${productSlug}`)
     }
 
     const handleContainerKey = (e) => {

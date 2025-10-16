@@ -1,9 +1,9 @@
 import { HeartIcon, MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 import styled, { css } from "styled-components";
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom'
 import { fetchBrands } from '../../services/brandService'
 import { resolveImageUrl } from '../../services/supabase'
+import useNavigateWithUTM from '../../hooks/useNavigateWithUTM'
 
 const Container = styled.div`
     width: 100%;
@@ -319,7 +319,7 @@ export default function SearchContainer({
     const [brands, setBrands] = useState([])
     const [brandsLoading, setBrandsLoading] = useState(true)
     const [inputValue, setInputValue] = useState('')
-    const navigate = useNavigate()
+    const navigate = useNavigateWithUTM()
     useEffect(() => {
         let mounted = true
         setBrandsLoading(true)

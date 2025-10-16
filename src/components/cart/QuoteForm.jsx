@@ -4,6 +4,7 @@ import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import { N8N_WEBHOOK_URL, WHATS_TARGET_E164, WHATS_MSG } from '../../lib/constants'
 import { useCart } from '../../contexts/CardContext'
+import { useUTM } from '../../contexts/UTMContext'
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -402,6 +403,7 @@ function generateUniqueId(prefix='fs-QUOTE'){ return `${prefix}-${Date.now()}` }
 
 export default function QuoteForm({ open, onClose, itemsOverride }){
   const { items } = useCart()
+  const { utm } = useUTM()
   const [submitting, setSubmitting] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm()
 
@@ -464,7 +466,7 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
     if (submitting) return
     setSubmitting(true)
     try {
-      const q = parseQueryParams()
+      // Use UTMs from context (already captured and persisted)
       const payloadArray = [{
         id: generateUniqueId('ECOMMERCE'),
         form_name: 'ECOMMERCE',
@@ -476,13 +478,15 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
         email: data.email?.trim(),
         phone_raw: data.phone?.trim(),
         phone_e164: toE164BR(data.phone),
-        utm_source: q.utm_source,
-        utm_medium: q.utm_medium,
-        utm_campaign: q.utm_campaign,
-        utm_content: q.utm_content,
-        utm_term: q.utm_term,
-        gclid: q.gclid,
-        fbclid: q.fbclid,
+        utm_source: utm.utm_source || '',
+        utm_medium: utm.utm_medium || '',
+        utm_campaign: utm.utm_campaign || '',
+        utm_content: utm.utm_content || '',
+        utm_term: utm.utm_term || '',
+        utm_id: utm.utm_id || '',
+        gclid: utm.gclid || '',
+        fbclid: utm.fbclid || '',
+        msclkid: utm.msclkid || '',
         cart_items: cartRows,
         cart_total: total,
         cart_items_raw_csv: csvRaw,

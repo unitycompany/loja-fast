@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { addUTM } from "../../utils/url";
 
 const Wrapper = styled.div`
   position: relative;
@@ -53,11 +54,14 @@ export default function Banner({
         </Media>
     )
 
+    // Build href with UTM parameters
+    const finalHref = href ? addUTM(href) : undefined
+
     return (
         <>
             <Wrapper>
-                {href ? (
-                    <Clickable href={href} onClick={onClick} aria-label={alt} rel="noopener">
+                {finalHref ? (
+                    <Clickable href={finalHref} onClick={onClick} aria-label={alt} rel="noopener">
                         {content}
                     </Clickable>
                 ) : (

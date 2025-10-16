@@ -5,6 +5,7 @@ import { Autoplay, A11y } from "swiper/modules"
 import "swiper/css"
 import { fetchBannersByType, fetchCategoryBannerDefaults } from '../../services/bannerService'
 import { resolveImageUrl } from '../../services/supabase'
+import { addUTM } from '../../utils/url'
 
 const BannerItem = styled.picture`
     height: auto;
@@ -173,7 +174,7 @@ export default function Adsense({
                         <SwiperSlide key={index}>
                             <BannerItem
                                 style={{ height: adsense.heightMobile }}
-                                onClick={() => window.location.href = `/${adsense.rota}`}
+                                onClick={() => window.location.href = addUTM(`/${adsense.rota}`)}
                             >
                                 <img
                                     src={adsense.image}
@@ -189,7 +190,7 @@ export default function Adsense({
                         <BannerItem
                             key={index}
                             style={{ height: adsense.heightDesktop }}
-                            onClick={() => window.location.href = `/${adsense.rota}`}
+                            onClick={() => window.location.href = addUTM(`/${adsense.rota}`)}
                         >
                             <img src={adsense.image} alt={adsense.alt} />
                         </BannerItem>

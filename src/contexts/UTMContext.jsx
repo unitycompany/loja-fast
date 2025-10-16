@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import { setUTMString } from '../utils/url'
 
 // Keys to persist (common marketing params)
 const UTM_KEYS = [
@@ -22,7 +23,7 @@ const STORAGE_KEY = 'utm_persist_v1'
 // Default retention window (in ms). 90 days.
 const DEFAULT_TTL = 90 * 24 * 60 * 60 * 1000
 
-const UTMContext = createContext({ utm: {}, setUTM: () => {}, clearUTM: () => {} })
+const UTMContext = createContext({ utm: {}, utmString: '', setUTM: () => {}, clearUTM: () => {} })
 
 function now() { return Date.now ? Date.now() : new Date().getTime() }
 
@@ -65,66 +66,74 @@ function pickUTMFromSearch(search) {
   return picked
 }
 
-function mergeSearchWithUTM(search, utm) {
-  const params = new URLSearchParams(search || '')
-  let changed = false
-  for (const [k, v] of Object.entries(utm || {})) {
-    if (!params.has(k)) {
-      params.set(k, v)
-      changed = true
-    }
-  }
-  return { search: params.toString(), changed }
+function utmObjectToString(utm) {
+  if (!utm || Object.keys(utm).length === 0) return ''
+  const params = new URLSearchParams()
+  Object.entries(utm).forEach(([key, value]) => {
+    params.set(key, value)
+  })
+  return `?${params.toString()}`
 }
 
-export function UTMProvider({ children, ttl = DEFAULT_TTL, appendToUrl = true, excludePaths = ['/admin'] }) {
+export function UTMProvider({ children, ttl = DEFAULT_TTL }) {
   const location = useLocation()
-  const navigate = useNavigate()
   const [utm, setUTMState] = useState(() => readStored()?.utm || {})
-  const lastPathRef = useRef(location.pathname + location.search + location.hash)
+  const [utmString, setUtmStringState] = useState(() => {
+    const stored = readStored()?.utm || {}
+    return utmObjectToString(stored)
+  })
 
   const setUTM = useCallback((next) => {
     const value = typeof next === 'function' ? next(utm) : next
     setUTMState(value)
     writeStored(value, ttl)
+    const stringValue = utmObjectToString(value)
+    setUtmStringState(stringValue)
+    setUTMString(stringValue) // Update global
   }, [utm, ttl])
 
   const clearUTM = useCallback(() => {
     setUTMState({})
+    setUtmStringState('')
     removeStored()
+    setUTMString('') // Clear global
   }, [])
 
-  // On route/search change: capture and optionally append
+  // Capture UTMs from URL on mount and route changes
   useEffect(() => {
-    const currentKey = location.pathname + location.search + location.hash
-    if (currentKey === lastPathRef.current) return
-    lastPathRef.current = currentKey
-
-    const isExcluded = excludePaths.some(p => location.pathname.startsWith(p))
-
-    // 1) If URL carries UTM, capture and persist
     const found = pickUTMFromSearch(location.search)
     if (Object.keys(found).length > 0) {
+      // Merge with existing UTMs (new ones override old ones)
       setUTM(prev => ({ ...prev, ...found }))
-      return // Already has UTM; don't force-append
-    }
-
-    // 2) If URL has no UTM and we have stored, optionally append to URL
-    if (!isExcluded && appendToUrl) {
+    } else {
+      // If no UTMs in URL but we have stored, update the URL
       const stored = readStored()
-      const storedUTM = stored?.utm
-      if (storedUTM && Object.keys(storedUTM).length > 0) {
-        const { search, changed } = mergeSearchWithUTM(location.search, storedUTM)
+      if (stored?.utm && Object.keys(stored.utm).length > 0) {
+        const params = new URLSearchParams(location.search)
+        let changed = false
+        
+        Object.entries(stored.utm).forEach(([key, value]) => {
+          if (!params.has(key)) {
+            params.set(key, value)
+            changed = true
+          }
+        })
+        
         if (changed) {
-          // preserve pathname and hash, replace history to avoid stacking
-          navigate({ pathname: location.pathname, search: search ? `?${search}` : '', hash: location.hash }, { replace: true })
+          const newUrl = `${location.pathname}?${params.toString()}${location.hash}`
+          window.history.replaceState(null, '', newUrl)
         }
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, location.search, location.hash])
+  }, [location.pathname, location.search])
 
-  const value = useMemo(() => ({ utm, setUTM, clearUTM }), [utm, setUTM, clearUTM])
+  // Initialize global UTM string on mount
+  useEffect(() => {
+    setUTMString(utmString)
+  }, [utmString])
+
+  const value = useMemo(() => ({ utm, utmString, setUTM, clearUTM }), [utm, utmString, setUTM, clearUTM])
   return (
     <UTMContext.Provider value={value}>
       {children}

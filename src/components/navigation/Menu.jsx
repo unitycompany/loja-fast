@@ -1,9 +1,9 @@
 import styled, {css} from "styled-components";
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'
 
 import { fetchCategories } from '../../services/categoryService'
 import { XIcon, ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import useNavigateWithUTM from '../../hooks/useNavigateWithUTM';
 
 const Container = styled.div`
     width: 100%;
@@ -232,7 +232,7 @@ export default function Menu({
     isOpen = false,
     onClose = () => {}
 }) {
-    const navigate = useNavigate()
+    const navigate = useNavigateWithUTM()
     useEffect(() => {
         function onKey(e) {
             if (e.key === 'Escape' && isOpen) onClose();

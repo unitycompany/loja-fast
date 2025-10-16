@@ -7,6 +7,7 @@ import { fetchCategoriesRaw } from '../../../services/categoryService'
 import { resolveImageUrl } from '../../../services/supabase'
 import { useEffect, useState } from 'react'
 import { CategorySkeleton } from '../../../components/common/SkeletonComponents'
+import { addUTM } from '../../../utils/url'
 
 const Container = styled.section`
     width: 100%;
@@ -157,7 +158,7 @@ export default function Categorys() {
                             const category = categoryRow.data || {}
                             const target = category.slug ? `/pesquisa?category=${encodeURIComponent(category.slug)}` : `/pesquisa?category=${encodeURIComponent(categoryRow.id)}`
                             return (
-                                <SwiperSlide key={categoryRow.id} onClick={() => window.location.href = target}>
+                                <SwiperSlide key={categoryRow.id} onClick={() => window.location.href = addUTM(target)}>
                                     <picture>
                                         <img src={imageMap[categoryRow.id] || category.image} alt={category.name} />
                                     </picture>
