@@ -5,8 +5,6 @@ import Breadcrumbs from "../../../components/navigation/Breadcrumbs";
 import ProductCard from "../../../components/product/ProductCard";
 import { fetchProductsBySlugs } from '../../../services/productService'
 import Adsense from "../../../components/banners/Adsense";
-import { fetchBannersByType } from '../../../services/bannerService'
-import { resolveImageUrl } from '../../../services/supabase'
 
 const Container = styled.div`
     width: 100%;
@@ -19,6 +17,13 @@ const Container = styled.div`
     justify-content: flex-start;
     min-height: 40vh;
     gap: 16px;
+
+    & .banner {
+
+        @media (max-width: 768px) {
+            padding: 2.5% 5%;
+        }
+    }
 
     @media (max-width: 768px) {
         margin-top: 60px;
@@ -94,25 +99,7 @@ export default function WishMain() {
         return () => { mounted = false }
     }, [wishedList])
 
-    const [adsenseItems, setAdsenseItems] = React.useState([])
-    React.useEffect(() => {
-        let mounted = true
-        async function loadBanners() {
-            try {
-                const data = await fetchBannersByType('disclosure')
-                const resolved = []
-                for (const b of (data || [])) {
-                    const image = await resolveImageUrl(b.image)
-                    resolved.push({ ...b, image: image || b.image })
-                }
-                if (mounted) setAdsenseItems(resolved)
-            } catch (err) {
-                console.error('Failed to load disclosure banners', err)
-            }
-        }
-        loadBanners()
-        return () => { mounted = false }
-    }, [])
+    // Adsense padronizado para categoria 'brand' (sem fetch manual)
 
     if (wishedProducts.length === 0) {
         return (
@@ -127,9 +114,7 @@ export default function WishMain() {
                     <Content>
                         <h1>Você não favoritou nenhum produto ainda!</h1>
                     </Content>
-                    <Adsense 
-                        ItemsAdsense={adsenseItems}
-                    />
+                    <Adsense ItemsAdsense={'brand'} />
                 </Container>
             </>
         )
@@ -152,9 +137,7 @@ export default function WishMain() {
                         />
                     ))}
                 </Content>
-                <Adsense 
-                    ItemsAdsense={adsenseItems}
-                />
+                <Adsense className="banner" ItemsAdsense={'brand'} />
             </Container>
         </>
     )

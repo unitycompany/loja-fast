@@ -224,16 +224,38 @@ export async function listBanners() {
 }
 
 export async function upsertBanner(banner) {
+  // Normalize payload to avoid referencing non-existent DB columns
   const payload = { ...banner }
+  // Move optional UI field `title` into JSONB meta to match DB schema
+  const meta = (payload && typeof payload.meta === 'object' && payload.meta !== null) ? { ...payload.meta } : {}
+  if (typeof payload.title === 'string' && payload.title.trim()) {
+    meta.title = payload.title.trim()
+  }
+  payload.meta = meta
+  // Remove top-level `title` to prevent Supabase error (column does not exist)
+  if ('title' in payload) delete payload.title
   if (payload.id) {
     const { data, error } = await supabase.from('banners').update(payload).eq('id', payload.id).select()
     if (error) throw error
     return data && data[0]
   } else {
+    // Ensure we don't send a null/undefined id to let DB default generate it
+    if (payload.id == null) delete payload.id
     const { data, error } = await supabase.from('banners').insert(payload).select()
     if (error) throw error
     return data && data[0]
   }
+}
+
+export async function toggleBannerActive(id, isActive) {
+  if (!id) throw new Error('Missing banner id')
+  const { data: current, error: readErr } = await supabase.from('banners').select('meta').eq('id', id).limit(1)
+  if (readErr) throw readErr
+  const meta = (current && current[0] && current[0].meta) ? { ...current[0].meta } : {}
+  meta.is_active = !!isActive
+  const { data, error } = await supabase.from('banners').update({ meta }).eq('id', id).select()
+  if (error) throw error
+  return data && data[0]
 }
 
 export async function deleteBanner(id) {

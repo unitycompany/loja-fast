@@ -30,6 +30,11 @@ const Content = styled.div`
     flex-direction: column;
     padding: 0 2.5%;
     width: 100%;
+    gap: 0px;
+
+    @media (max-width: 768px) {
+        gap: 12px;
+    }
 `
 
 // We'll load banner groups from Supabase instead of hard-coded arrays

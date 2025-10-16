@@ -19,10 +19,11 @@ const Container = styled.footer`
     flex-direction: column;
     gap: 16px;
     padding: 2.5%;
-    background-color: var(--color--white);
+    background-color: var(--color--black);
 
     @media (max-width: 768px) {
-        padding: 2.5%;    
+        padding: 5%;
+        margin-top: 18px;
         gap: 28px;
     }
 `
@@ -71,8 +72,8 @@ const Item = styled.div`
 
     & h2 {
         font-size: 20px;
-        font-weight: 500;
-        color: var(--color--black-2);
+        font-weight: 400;
+        color: var(--color--gray-4);
 
         @media (max-width: 768px) {
             font-size: 18px;
@@ -85,7 +86,7 @@ const Item = styled.div`
         justify-content: flex-start;
         flex-direction: row;
         width: 100%;
-        gap: 18px;
+        gap: 12px;
 
         & li {
             display: flex;
@@ -117,7 +118,7 @@ const Item = styled.div`
             & span {
                 font-size: 16px;
                 font-weight: 400;
-                color: var(--color--black-2);
+                color: var(--color--gray-6);
 
                 @media (max-width: 768px) {
                     font-size: 14px;
@@ -142,8 +143,8 @@ const Policy = styled.div`
 
     & h2 {
         font-size: 20px;
-        font-weight: 500;
-        color: var(--color--black-2);
+        font-weight: 400;
+        color: var(--color--gray-4);
         line-height: 1.1;
 
         @media (max-width: 768px) {
@@ -167,7 +168,7 @@ const Policy = styled.div`
         & p {
             font-size: 14px;
             font-weight: 400;
-            color: var(--color--gray);
+            color: var(--color--gray-2);
             margin: 0;
 
             @media (max-width: 768px) {
@@ -188,12 +189,13 @@ const Dev = styled.div`
         align-items: center;
         justify-content: center;
         gap: 6px;
-        font-weight: 500;
-        color: var(--color--black-2);
+        font-weight: 400;
+        color: var(--color--white-2);
 
         & img {
             width: 20px;
             height: 20px;
+            filter: invert(1) brightness(2);
         }
     }
 `
@@ -253,18 +255,18 @@ export default function Footer({
                             <li onClick={() => window.location.href = `https://wa.me/${phone.replace(/\D/g, '')}`}>
                                 <ProductIcon 
                                     children={<PhoneCallIcon weight="thin"/>}
-                                    color="#0557B4"
+                                    color="#ffffff"
                                 />
                                 <ProductIcon 
                                     children={<WhatsappLogoIcon weight="thin"/>}
-                                    color="#075E54"
+                                    color="#ffffff"
                                 />
                                 <span>{phone}</span>
                             </li>
                             <li onClick={() => window.location.href = `mailto:${mail}`}>
                                 <ProductIcon 
                                     children={<AtIcon weight="thin"/>}
-                                    color="#AA1919"
+                                    color="#ffffff"
                                 />
                                 <span>{mail}</span>
                             </li>

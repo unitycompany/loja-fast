@@ -109,7 +109,9 @@ export default function ProductCarousel({
     title,
     categoryKey,
     categoryKeys = [],
-    limit = 10
+    limit = 10,
+    excludeSlug = null,
+    excludeId = null
 }) {
     const [items, setItems] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
@@ -138,7 +140,19 @@ export default function ProductCarousel({
         try {
             const [primary, ...rest] = compositeKeys;
             // Busca TODOS os produtos da categoria (sem limite)
-            const data = await fetchTopProducts({ limit: 9999, category: primary, categories: rest });
+            let data = await fetchTopProducts({ limit: 9999, category: primary, categories: rest });
+            // Exclui produto atual se informado
+            if (excludeSlug || excludeId) {
+                const exSlug = (excludeSlug && String(excludeSlug)) || null;
+                const exId = excludeId || null;
+                data = (data || []).filter(p => {
+                    const pid = p.id ?? null;
+                    const pslug = p.slug ?? null;
+                    if (exId && pid && pid === exId) return false;
+                    if (exSlug && pslug && String(pslug) === String(exSlug)) return false;
+                    return true;
+                });
+            }
             
             // Embaralha os produtos aleatoriamente
             const shuffled = data.sort(() => Math.random() - 0.5);
@@ -153,7 +167,7 @@ export default function ProductCarousel({
         } finally {
             if (mountedRef.current) setLoading(false);
         }
-    }, [compositeKeys, limit]);
+    }, [compositeKeys, limit, excludeSlug, excludeId]);
 
     React.useEffect(() => {
         const mountedRef = { current: true };

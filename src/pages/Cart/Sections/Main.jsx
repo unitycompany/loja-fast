@@ -2,8 +2,6 @@ import Adsense from "../../../components/banners/Adsense";
 import Breadcrumbs from "../../../components/navigation/Breadcrumbs";
 import styled from "styled-components";
 
-import { fetchBannersByType } from '../../../services/bannerService'
-import { resolveImageUrl } from '../../../services/supabase'
 import ProductCart from "../../../components/product/ProductCart";
 import React from 'react'
 import { useCart } from '../../../contexts/CardContext'
@@ -21,6 +19,13 @@ const Container = styled.div`
     justify-content: flex-start;
     min-height: 40vh;
     gap: 16px;
+
+    & .banner {
+
+        @media (max-width: 768px) {
+            padding: 2.5% 5%;
+        }
+    }
 
     @media (max-width: 768px) {
         margin-top: 60px;
@@ -179,25 +184,7 @@ export default function MainCart() {
         }, { totalProducts: 0, subtotal: 0 })
     }, [enrichedItems])
 
-    const [adsenseItems, setAdsenseItems] = React.useState([])
-    React.useEffect(() => {
-        let mounted = true
-        async function loadBanners() {
-            try {
-                const data = await fetchBannersByType('disclosure')
-                const resolved = []
-                for (const b of (data || [])) {
-                    const image = await resolveImageUrl(b.image)
-                    resolved.push({ ...b, image: image || b.image })
-                }
-                if (mounted) setAdsenseItems(resolved)
-            } catch (err) {
-                console.error('Failed to load disclosure banners', err)
-            }
-        }
-        loadBanners()
-        return () => { mounted = false }
-    }, [])
+    // Removido fetch manual; padroniza Adsense para categoria 'brand'
     return (
         <>
             <Container>
@@ -242,9 +229,7 @@ export default function MainCart() {
                         />
                     </Card>
                 </Content>
-                <Adsense 
-                    ItemsAdsense={adsenseItems}
-                />
+                <Adsense className="banner" ItemsAdsense={'brand'} />
             </Container>
         </>
     )

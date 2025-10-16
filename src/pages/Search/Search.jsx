@@ -2,8 +2,6 @@ import styled from "styled-components"
 import ProductsGrid from "./Sections/ProductsGrid"
 import Filter from "./Sections/Filter"
 import Adsense from "../../components/banners/Adsense"
-import { fetchBannersByType } from '../../services/bannerService'
-import { resolveImageUrl } from '../../services/supabase'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SEOHelmet from "../../components/seo/SEOHelmet"
@@ -24,6 +22,13 @@ const Container = styled.section`
     padding: 0 0;
     margin-top: 70px;
 
+    & .banner {
+
+        @media (max-width: 768px) {
+            padding: 2.5% 5%;
+        }
+    }
+
     @media (max-width: 768px) {
         flex-direction: column;
         margin-top: 0;
@@ -38,12 +43,10 @@ const Main = styled.main`
     position: relative;
     width: 100%;
     height: auto;
-    border: 1px solid red;
 `
 
 export default function Search() {
     const [filterOpen, setFilterOpen] = useState(false)
-    const [adsenseItems, setAdsenseItems] = useState([])
     const [searchParams] = useSearchParams()
     const [seoData, setSeoData] = useState(null)
     
@@ -109,24 +112,7 @@ export default function Search() {
         return () => { mounted = false }
     }, [categoryParam, brandParam, searchQuery, subcategoryParam])
 
-    useEffect(() => {
-        let mounted = true
-        async function loadBanners() {
-            try {
-                const data = await fetchBannersByType('disclosure')
-                const resolved = []
-                for (const b of (data || [])) {
-                    const image = await resolveImageUrl(b.image)
-                    resolved.push({ ...b, image: image || b.image })
-                }
-                if (mounted) setAdsenseItems(resolved)
-            } catch (err) {
-                console.error('Failed to load disclosure banners', err)
-            }
-        }
-        loadBanners()
-        return () => { mounted = false }
-    }, [])
+    // Removido fetch manual; padroniza Adsense para categoria 'brand'
 
     // SEO Schema
     const searchSchema = seoData ? generateSchema('SearchResultsPage', {
@@ -152,9 +138,7 @@ export default function Search() {
                     <Filter open={filterOpen} setOpen={setFilterOpen} />
                     <ProductsGrid setFilterOpen={setFilterOpen} />
                 </Main>
-                <Adsense 
-                    ItemsAdsense={adsenseItems}
-                />
+                <Adsense className="banner" ItemsAdsense={'brand'} />
             </Container>
         </>
     )

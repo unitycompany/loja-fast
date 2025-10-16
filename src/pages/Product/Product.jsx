@@ -4,9 +4,7 @@ import { useParams } from 'react-router-dom'
 import Main from './Sections/Main'
 import StructuredData from './Sections/StructuredData'
 import Details from './Sections/Details'
-import Adsense from '../../components/banners/Adsense'
-import { fetchBannersByType } from '../../services/bannerService'
-import { resolveImageUrl } from '../../services/supabase'
+import ProductCarousel from '../Home/Sections/ProductCarousel'
 import { fetchProductBySlug } from '../../services/productService'
 import SEOHelmet from '../../components/seo/SEOHelmet'
 import { buildProductSeo } from '../../lib/seo'
@@ -23,6 +21,14 @@ const Container = styled.div`
     height: auto;
     margin: 0 auto;
     padding: 0 0;
+
+    & .relacionados {
+        padding: 0;
+
+        @media (max-width: 768px) {
+            padding: 2.5%;
+        }
+    }
 `
 
 export default function Product() {
@@ -31,7 +37,6 @@ export default function Product() {
     const [product, setProduct] = React.useState(null)
     const [loading, setLoading] = React.useState(true)
     const [error, setError] = React.useState(null)
-    const [adsenseItems, setAdsenseItems] = React.useState([])
 
     React.useEffect(() => {
         let mounted = true
@@ -50,26 +55,7 @@ export default function Product() {
         return () => { mounted = false }
     }, [slug])
 
-    React.useEffect(() => {
-        let mounted = true
-        async function loadBanners() {
-            try {
-                const data = await fetchBannersByType('disclosure')
-                const resolved = []
-                for (const b of (data || [])) {
-                    const image = await resolveImageUrl(b.image)
-                    const url_mobile = await resolveImageUrl(b.url_mobile)
-                    const url_desktop = await resolveImageUrl(b.url_desktop)
-                    resolved.push({ ...b, image: image || b.image, url_mobile: url_mobile || b.url_mobile, url_desktop: url_desktop || b.url_desktop })
-                }
-                if (mounted) setAdsenseItems(resolved)
-            } catch (err) {
-                console.error('Failed to load disclosure banners', err)
-            }
-        }
-        loadBanners()
-        return () => { mounted = false }
-    }, [])
+    // Removed banners/adsense; we'll show related products carousel instead
 
     // lift selected measure to synchronize Main and Details
     const defaultMeasureId = product?.default_measure_id || product?.defaultMeasureId || product?.measures?.[0]?.id
@@ -118,9 +104,15 @@ export default function Product() {
                 <Main product={product} selectedMeasureId={selectedMeasureId} setSelectedMeasureId={setSelectedMeasureId} selectedUnitIndex={selectedUnitIndex} setSelectedUnitIndex={setSelectedUnitIndex} />
                 <StructuredData product={product} />
                 <Details product={product} selectedMeasureId={selectedMeasureId} setSelectedMeasureId={setSelectedMeasureId} />
-                <Adsense 
-                    ItemsAdsense={adsenseItems}
-                />
+                <div className='relacionados' style={{ width: '100%', marginTop: 24 }}>
+                    <ProductCarousel
+                        title="Produtos relacionados"
+                        categoryKey={product?.category || null}
+                        categoryKeys={[product?.subcategory || product?.sub_category].filter(Boolean)}
+                        excludeSlug={product?.slug}
+                        limit={12}
+                    />
+                </div>
             </Container>
         </>
     )

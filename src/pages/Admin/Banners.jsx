@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { listBanners, upsertBanner, deleteBanner, listCategories } from '../../services/adminService'
+import { listBanners, upsertBanner, deleteBanner, listCategories, toggleBannerActive } from '../../services/adminService'
 import { resolveImageUrl, BANNERS_BUCKET } from '../../services/supabase'
 import FormSection from './components/FormSection'
 import FieldRow from './components/FieldRow'
@@ -141,6 +141,18 @@ const TypeBadge = styled.span`
   text-transform: capitalize;
 `
 
+const ActiveBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: ${({ $active }) => ($active ? 'rgba(52, 199, 89, 0.15)' : 'rgba(128, 128, 128, 0.15)')};
+  color: ${({ $active }) => ($active ? '#2b8a3e' : '#555')};
+`
+
 const Destination = styled.div`
   font-size: 12px;
   color: var(--color--black-5);
@@ -226,13 +238,16 @@ const createEmptyForm = () => ({
   image: '',
   url_desktop: '',
   url_mobile: '',
+  // title lives inside meta.title in DB; we keep a convenience field in UI but will map it to meta.title on save
   title: '',
   height: '',
   rota: '',
   meta: {
     layout: 'hero',
     tone: 'light',
-    categories: []
+    categories: [],
+    height_desktop: '',
+    height_mobile: ''
   }
 })
 
@@ -361,7 +376,7 @@ export default function Banners() {
   const filteredBanners = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
     return (banners || []).filter((banner) => {
-      const title = (banner.alt || banner.title || '').toLowerCase()
+      const title = (banner.alt || banner.meta?.title || '').toLowerCase()
       const matchesSearch = !normalizedSearch || title.includes(normalizedSearch)
       const matchesType = typeFilter === 'all' || banner.type === typeFilter
       return matchesSearch && matchesType
@@ -374,8 +389,15 @@ export default function Banners() {
     if (!form.alt) next.alt = 'Texto alternativo é obrigatório.'
     if (!form.url_desktop && !form.image) next.image = 'Envie ao menos uma imagem principal.'
     if (!form.href) next.href = 'Informe o link de destino.'
-    if (form.height && !/^\d+(px|rem|vh|%)?$/i.test(form.height.trim()) && form.height.trim() !== 'auto') {
+    const heightPattern = /^\d+(px|rem|vh|%)?$/i
+    if (form.height && !heightPattern.test(form.height.trim()) && form.height.trim() !== 'auto') {
       next.height = 'Use números seguidos de px, rem, vh, % ou "auto".'
+    }
+    if (form.meta?.height_desktop && !heightPattern.test(form.meta.height_desktop.trim()) && form.meta.height_desktop.trim() !== 'auto') {
+      next.height_desktop = 'Altura desktop inválida. Use px, rem, vh, %, ou "auto".'
+    }
+    if (form.meta?.height_mobile && !heightPattern.test(form.meta.height_mobile.trim()) && form.meta.height_mobile.trim() !== 'auto') {
+      next.height_mobile = 'Altura mobile inválida. Use px, rem, vh, %, ou "auto".'
     }
     setErrors(next)
     return Object.keys(next).length === 0
@@ -388,6 +410,11 @@ export default function Banners() {
         ...form,
         meta: {
           ...(form.meta || {}),
+          // Persist the optional title inside meta to match DB schema
+          ...(form.title ? { title: form.title } : {}),
+          // Persist per-device heights if provided
+          ...(form.meta?.height_desktop ? { height_desktop: form.meta.height_desktop } : {}),
+          ...(form.meta?.height_mobile ? { height_mobile: form.meta.height_mobile } : {}),
           categories: (form.meta?.categories || []).filter(Boolean),
           layout: form.meta?.layout || 'hero',
           tone: form.meta?.tone || 'light'
@@ -408,17 +435,19 @@ export default function Banners() {
       ...createEmptyForm(),
       id: banner.id,
       type: banner.type || 'home',
-      alt: banner.alt || banner.title || '',
+      alt: banner.alt || banner.meta?.title || '',
       href: banner.href || '',
       image: banner.image || '',
       url_desktop: banner.url_desktop || '',
       url_mobile: banner.url_mobile || '',
-      title: banner.title || '',
+      title: banner.meta?.title || '',
       height: banner.height || '',
       rota: banner.rota || '',
       meta: {
         ...createEmptyForm().meta,
         ...(banner.meta || {}),
+        height_desktop: banner.meta?.height_desktop || banner.height || '',
+        height_mobile: banner.meta?.height_mobile || '',
         categories: Array.isArray(banner.meta?.categories) ? banner.meta.categories : []
       }
     })
@@ -552,6 +581,12 @@ export default function Banners() {
               <FieldRow label="Altura" hint="Use valores como 520px, 60vh ou auto" error={errors.height} htmlFor="banner-height">
                 <input id="banner-height" type="text" value={form.height} onChange={(event) => updateField('height', event.target.value)} placeholder="520px" />
               </FieldRow>
+              <FieldRow label="Altura desktop" hint="Ex.: 520px, 60vh, % ou auto" error={errors.height_desktop} htmlFor="banner-height-desktop">
+                <input id="banner-height-desktop" type="text" value={form.meta?.height_desktop || ''} onChange={(event) => updateMeta('height_desktop', event.target.value)} placeholder="520px" />
+              </FieldRow>
+              <FieldRow label="Altura mobile" hint="Ex.: 360px, 50vh, % ou auto" error={errors.height_mobile} htmlFor="banner-height-mobile">
+                <input id="banner-height-mobile" type="text" value={form.meta?.height_mobile || ''} onChange={(event) => updateMeta('height_mobile', event.target.value)} placeholder="360px" />
+              </FieldRow>
               <FieldRow label="Título" hint="Usado em relatórios internos (opcional)" htmlFor="banner-title">
                 <input id="banner-title" type="text" value={form.title} onChange={(event) => updateField('title', event.target.value)} placeholder="Campanha Steel Frame" />
               </FieldRow>
@@ -681,12 +716,13 @@ export default function Banners() {
                     const cats = Array.isArray(meta.categories) ? meta.categories : []
                     const previewUrl = previews[banner.id]
                     const isActive = activeBannerId && banner.id === activeBannerId
+                    const enabled = meta.is_active !== false
                     return (
                       <tr key={banner.id} data-active={isActive ? 'true' : undefined}>
                         <td>
                           <PreviewCell>
                             {previewUrl ? (
-                              <img src={previewUrl} alt={banner.alt || banner.title || ''} />
+                              <img src={previewUrl} alt={banner.alt || banner.meta?.title || ''} />
                             ) : (
                               <span style={{ fontSize: 11, color: 'var(--color--gray-4)' }}>Sem preview</span>
                             )}
@@ -694,15 +730,20 @@ export default function Banners() {
                         </td>
                         <td>
                           <InfoStack>
-                            <strong style={{ fontSize: 13 }}>{banner.alt || banner.title || TYPE_OPTIONS.find(option => option.value === banner.type)?.label || 'Banner'}</strong>
-                            <TypeBadge>#{banner.type}</TypeBadge>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                              <strong style={{ fontSize: 13 }}>{banner.alt || banner.meta?.title || TYPE_OPTIONS.find(option => option.value === banner.type)?.label || 'Banner'}</strong>
+                              <TypeBadge>#{banner.type}</TypeBadge>
+                              <ActiveBadge $active={enabled}>{enabled ? 'Ativo' : 'Inativo'}</ActiveBadge>
+                            </div>
                           </InfoStack>
                         </td>
                         <td>
                           <TagList>
                             {meta.layout ? <Tag>Layout: {meta.layout}</Tag> : null}
                             {meta.tone ? <Tag>Tema: {meta.tone}</Tag> : null}
-                            {banner.height ? <Tag>Altura: {banner.height}</Tag> : null}
+                            {meta.height_desktop ? <Tag>Altura desktop: {meta.height_desktop}</Tag> : null}
+                            {meta.height_mobile ? <Tag>Altura mobile: {meta.height_mobile}</Tag> : null}
+                            {!meta.height_desktop && !meta.height_mobile && banner.height ? <Tag>Altura: {banner.height}</Tag> : null}
                           </TagList>
                         </td>
                         <td>
@@ -719,6 +760,16 @@ export default function Banners() {
                           <TableActions>
                             <TableActionButton type="button" onClick={() => handleEdit(banner)}>
                               Editar
+                            </TableActionButton>
+                            <TableActionButton type="button" onClick={async () => {
+                              try {
+                                await toggleBannerActive(banner.id, !enabled)
+                                await reload()
+                              } catch (e) {
+                                alert('Não foi possível alterar o status: ' + (e?.message || e))
+                              }
+                            }}>
+                              {enabled ? 'Desativar' : 'Ativar'}
                             </TableActionButton>
                             <TableActionButton type="button" onClick={() => handleRemove(banner.id)}>
                               Remover
