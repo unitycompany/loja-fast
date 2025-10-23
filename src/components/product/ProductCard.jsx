@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 import useWishlist from "../../hooks/useWishlist";
 import ProductIcon from "../buttons/ProductIcon";
-import { ExportIcon, HeartIcon, ShoppingCartIcon } from "@phosphor-icons/react/dist/ssr";
+import { ExportIcon, HeartIcon, ShoppingCartIcon, TruckIcon } from "@phosphor-icons/react/dist/ssr";
 import { formatCurrency } from "../../lib/formatters";
 import { useCart } from "../../contexts/CardContext";
 import { flyToTarget, emitCartAdded, emitWishlistToggled } from "../../lib/animations";
@@ -499,7 +499,7 @@ export default function ProductCard({
                                         onClick={handleAddToCart}
                                         ariaLabel="Adicionar ao caminhão"
                                     >
-                                        <ShoppingCartIcon />
+                                        <TruckIcon />
                                     </ProductIcon>
                                     </>
                                 ): (
@@ -511,7 +511,7 @@ export default function ProductCard({
                                         className="solicitar-orcamento"
                                     >
                                         <span>Solicitar orçamento</span>
-                                        <ShoppingCartIcon />
+                                        <TruckIcon />
                                     </ProductIcon>
                                     </>
                                 )

@@ -303,11 +303,14 @@ const Form = styled.form`
   /* Checkbox specific styling to match form layout */
   .checkbox-label {
     display: flex;
+    height: auto;
     align-items: flex-start;
+    flex-direction: row;
     gap: 12px;
     line-height: 1.2;
-    font-size: 12px;
+    font-size: 14px;
     color: #374151;
+    margin-bottom: -12px;
   }
 
   input[type="checkbox"] {
@@ -628,7 +631,10 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
                   type="checkbox"
                   {...register('confirmo', { required: true })}
                 />
-                Confirmo que esta solicitação trata-se apenas de um pedido de orçamento, e que os valores podem variar conforme a praça, o frete, as taxas e as demais condições comerciais.
+                <p>
+                  Confirmo que esta solicitação trata-se apenas de um <strong>pedido de orçamento</strong>, e que os valores podem variar conforme a praça, o frete, as taxas e as demais condições comerciais.
+                </p>
+                
               </label>
               {errors.confirmo && <div className="error">É necessário confirmar para enviar o orçamento</div>}
             </div>

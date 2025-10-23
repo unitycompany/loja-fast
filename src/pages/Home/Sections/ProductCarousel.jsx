@@ -62,18 +62,21 @@ const Text = styled.div`
     }
 
     & h1 {
-        font-size: 24px;
+        font-size: 28px;
         line-height: 100%;
+        letter-spacing: 2px;
         font-weight: 700;
-        border-bottom: 1px solid var(--color--black-3);
-        padding-bottom: 4px;
+        border-bottom: 2px solid var(--color--black-3);
+        padding-bottom: 8px;
         text-align: center;
         color: transparent;
-        background: linear-gradient(90deg, var(--color--black-2), var(--color--black-6));
+        background: linear-gradient(90deg, var(--color--primary), var(--color--black-2));
         -webkit-background-clip: text;
 
         @media (max-width: 768px) {
             font-size: 20px;
+            padding-bottom: 6px;
+            letter-spacing: 1px;
         }
     }
 `;

@@ -98,7 +98,7 @@ const Alert = styled.div`
         line-height: 1.2;
 
         & strong {
-            font-weight: 600;
+            font-weight: 500;
             text-decoration: underline;
         }
     }
@@ -161,8 +161,8 @@ export default function Result({
                     <Alert>
                         <WarningIcon />
                         <p>
-                            Os valores exibidos nesta página <strong>são apenas uma referência</strong> e podem variar conforme a <strong>praça</strong>, o <strong>frete</strong>, as <strong>taxas</strong> e as <strong>demais condições comerciais.</strong> <br />
-                            Ao solicitar um orçamento, você confirma que <strong>não está realizando uma compra</strong>, e que o valor final será informado pela equipe de Vendas da FAST.
+                            Os valores exibidos nesta página <strong><i>são apenas uma referência</i></strong> e podem variar conforme a <strong>praça</strong>, o <strong>frete</strong>, as <strong>taxas</strong> e as <strong>demais condições comerciais.</strong> <br />
+                            Ao solicitar um orçamento, você confirma que <strong><i>não está realizando uma compra</i></strong>, e que o valor final será informado pela equipe de Vendas da FAST.
                         </p>
                     </Alert>
                     <button onClick={() => setQuoteOpen(true)}>Solicitar Orçamento</button>
