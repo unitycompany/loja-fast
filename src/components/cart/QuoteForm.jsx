@@ -274,8 +274,13 @@ const Form = styled.form`
     align-items: center;
     gap: 2px;
   }
-
-  input {
+  /* Only style textual inputs (not checkboxes) */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="search"],
+  input[type="number"],
+  textarea {
     height: 38px;
     padding: 0px;
     border-bottom: 1px solid #d1d5db;
@@ -293,6 +298,24 @@ const Form = styled.form`
       height: 42px;
       font-size: 16px; /* Prevents zoom on iOS */
     }
+  }
+
+  /* Checkbox specific styling to match form layout */
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.2;
+    font-size: 12px;
+    color: #374151;
+  }
+
+  input[type="checkbox"] {
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    accent-color: var(--color--green, #16a34a);
+    flex: 0 0 auto;
   }
 
   .error {
@@ -597,6 +620,17 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
                 }}
               />
               {errors.phone && <div className="error">Por favor, informe seu telefone</div>}
+            </div>
+
+            <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  {...register('confirmo', { required: true })}
+                />
+                Confirmo que esta solicitação trata-se apenas de um pedido de orçamento, e que os valores podem variar conforme a praça, o frete, as taxas e as demais condições comerciais.
+              </label>
+              {errors.confirmo && <div className="error">É necessário confirmar para enviar o orçamento</div>}
             </div>
 
             <div className="actions">

@@ -250,7 +250,7 @@ export default function Footer({
                         </ul>
                     </Item>
                     <Item>
-                        <h2>Atendimento</h2>
+                        <h2>Fale com o time de Televendas</h2>
                         <ul>
                             <li onClick={() => window.location.href = `https://wa.me/${phone.replace(/\D/g, '')}`}>
                                 <ProductIcon 
@@ -275,7 +275,10 @@ export default function Footer({
                 </Infos>
                 <Infos>
                     <Policy>
-                        <h2>Fast Sistemas Construtivos | Steel Frame, Drywall e Soluções Acústicas | Casas Pré-Fabricadas, Drywall e Soluções Acústicas</h2>
+                        <h2>
+                            Fast Sistemas Construtivos | Light Steel Frame e Drywall <br/>
+                            Soluções Acústicas e Casas Pré-Fabricadas
+                        </h2>
                         <aside>
                             <p>Fast Drywall Franchising Ltda | CNPJ 40.436.034/0001-48</p>
                             <p>R. Equador, 43 - Bl 3 Sala 720 - Santo Cristo - Rio de Janeiro - RJ - CEP 20220-410</p>

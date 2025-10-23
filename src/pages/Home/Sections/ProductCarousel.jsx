@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, {keyframes} from "styled-components";
 
 import ProductCard from "../../../components/product/ProductCard";
 import React from "react";
@@ -64,15 +64,16 @@ const Text = styled.div`
     & h1 {
         font-size: 24px;
         line-height: 100%;
-        font-weight: 600;
-        color: var(--color--black-2);
-        box-shadow: var(--border-bottom);
-        padding-bottom: 12px;
+        font-weight: 700;
+        border-bottom: 1px solid var(--color--black-3);
+        padding-bottom: 4px;
         text-align: center;
+        color: transparent;
+        background: linear-gradient(90deg, var(--color--black-2), var(--color--black-6));
+        -webkit-background-clip: text;
 
         @media (max-width: 768px) {
             font-size: 20px;
-            padding-bottom: 12px;
         }
     }
 `;

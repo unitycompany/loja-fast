@@ -96,6 +96,11 @@ const Alert = styled.div`
         margin: 0;
         font-size: 14px;
         line-height: 1.2;
+
+        & strong {
+            font-weight: 600;
+            text-decoration: underline;
+        }
     }
 
     & svg {
@@ -155,7 +160,10 @@ export default function Result({
                 <Button>
                     <Alert>
                         <WarningIcon />
-                        <p>Você está solicitando um orçamento, o valor pode variar dependendo da praça, taxas, frete etc. Ao solicitar um orçamento você confirma que entendeu isso.</p>
+                        <p>
+                            Os valores exibidos nesta página <strong>são apenas uma referência</strong> e podem variar conforme a <strong>praça</strong>, o <strong>frete</strong>, as <strong>taxas</strong> e as <strong>demais condições comerciais.</strong> <br />
+                            Ao solicitar um orçamento, você confirma que <strong>não está realizando uma compra</strong>, e que o valor final será informado pela equipe de Vendas da FAST.
+                        </p>
                     </Alert>
                     <button onClick={() => setQuoteOpen(true)}>Solicitar Orçamento</button>
                 </Button>

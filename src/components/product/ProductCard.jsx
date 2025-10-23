@@ -510,7 +510,7 @@ export default function ProductCard({
                                         ariaLabel="Adicionar ao caminhão"
                                         className="solicitar-orcamento"
                                     >
-                                        <span>Necessário orçar</span>
+                                        <span>Solicitar orçamento</span>
                                         <ShoppingCartIcon />
                                     </ProductIcon>
                                     </>
