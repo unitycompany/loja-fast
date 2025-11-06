@@ -319,6 +319,41 @@ export async function upsertProduct(product) {
   }
 }
 
+export async function quickUpdateProductBasics(productId, { price, sku } = {}) {
+  if (!productId) throw new Error('Produto sem identificador')
+
+  const payload = {}
+  if (typeof price !== 'undefined') {
+    if (price === null || price === '') payload.price = null
+    else if (Number.isFinite(price)) payload.price = Number(price)
+    else payload.price = Number(price) || null
+  }
+  if (typeof sku !== 'undefined') {
+    const normalizedSku = typeof sku === 'string' ? sku.trim() : sku
+    payload.sku = normalizedSku ? normalizedSku : null
+  }
+
+  const keys = Object.keys(payload)
+  if (!keys.length) throw new Error('Nenhuma alteração informada')
+
+  try {
+    const mod = await import('./adminAuth')
+    await mod.ensureAdminSession()
+  } catch (e) {
+    // continua mesmo sem sessão pré-carregada; Supabase validará permissão
+  }
+
+  const { data, error } = await supabase
+    .from('products')
+    .update(payload)
+    .eq('id', productId)
+    .select()
+
+  if (error) throw error
+  if (data && data[0]) return data[0]
+  return { id: productId, ...payload }
+}
+
 export async function toggleProductActive(productId, isActive) {
   try {
     const mod = await import('./adminAuth')
