@@ -4,137 +4,25 @@
  * Compatível com a especificação: https://support.google.com/merchants/answer/7052112
  */
 
+import 'dotenv/config'
 import { createClient } from '@supabase/supabase-js'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { createMerchantFeed } from '../shared/merchant-feed.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Configurações
-const SITE_URL = process.env.VITE_SITE_URL || 'https://unitycompany.github.io/loja-fast'
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY
+const SUPABASE_BUCKET = process.env.MERCHANT_SUPABASE_BUCKET || 'product-images'
 
-// Fallback para dados locais se Supabase não estiver configurado
 const useLocal = !SUPABASE_URL || !SUPABASE_ANON_KEY
 
 let supabase
 if (!useLocal) {
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-}
-
-/**
- * Escape XML special characters
- */
-function escapeXml(unsafe) {
-  if (!unsafe) return ''
-  return String(unsafe)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
-}
-
-/**
- * Remove HTML tags from description
- */
-function stripHtml(html) {
-  if (!html) return ''
-  return String(html)
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-/**
- * Formata preço no padrão do Google Merchant (ex: 25.90 BRL)
- */
-function formatPrice(price, currency = 'BRL') {
-  if (!price || isNaN(price)) return null
-  return `${parseFloat(price).toFixed(2)} ${currency}`
-}
-
-/**
- * Resolve URL da imagem do produto
- */
-function resolveImageUrl(product) {
-  // Se tem URL completa, usa ela
-  if (product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.startsWith('http')) {
-    return product.imageUrl
-  }
-  
-  // Se tem imagem no Supabase storage
-  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-    const img = product.images[0]
-    
-    // Verifica se é string antes de usar startsWith
-    if (typeof img === 'string') {
-      if (img.startsWith('http')) return img
-      // Remove barras duplicadas
-      const cleanImg = img.replace(/^\/+/, '')
-      return `${SUPABASE_URL}/storage/v1/object/public/product-images/${cleanImg}`
-    }
-    
-    // Se for objeto com propriedade url ou src
-    if (img && typeof img === 'object') {
-      const imgUrl = img.url || img.src || img.path
-      if (imgUrl && typeof imgUrl === 'string') {
-        if (imgUrl.startsWith('http')) return imgUrl
-        const cleanImg = imgUrl.replace(/^\/+/, '')
-        return `${SUPABASE_URL}/storage/v1/object/public/product-images/${cleanImg}`
-      }
-    }
-  }
-  
-  // Tenta usar o slug para gerar uma imagem padrão
-  // Se não tiver imagem, melhor não incluir do que incluir placeholder quebrado
-  // Google prefere produtos sem imagem do que com imagem inválida
-  const slug = product.slug || product.id
-  if (slug) {
-    return `${SITE_URL}/assets/products/${slug}.jpg`
-  }
-  
-  // Última tentativa: imagem genérica de produto
-  return `${SITE_URL}/assets/product-default.jpg`
-}
-
-/**
- * Mapeia availability para formato Google Merchant
- */
-function mapAvailability(availability, stock) {
-  if (stock !== undefined && stock !== null && stock <= 0) {
-    return 'out_of_stock'
-  }
-  
-  const normalizedAvail = String(availability || 'in_stock').toLowerCase()
-  
-  if (normalizedAvail.includes('in_stock') || normalizedAvail.includes('in stock')) {
-    return 'in_stock'
-  }
-  if (normalizedAvail.includes('out_of_stock') || normalizedAvail.includes('out of stock')) {
-    return 'out_of_stock'
-  }
-  if (normalizedAvail.includes('preorder') || normalizedAvail.includes('pre-order')) {
-    return 'preorder'
-  }
-  
-  return 'in_stock' // padrão
-}
-
-/**
- * Mapeia condition para formato Google Merchant
- */
-function mapCondition(condition) {
-  const normalized = String(condition || 'new').toLowerCase()
-  
-  if (normalized.includes('new') || normalized.includes('novo')) return 'new'
-  if (normalized.includes('refurbished') || normalized.includes('recondicionado')) return 'refurbished'
-  if (normalized.includes('used') || normalized.includes('usado')) return 'used'
-  
-  return 'new' // padrão
 }
 
 /**
@@ -170,58 +58,6 @@ function fetchProductsFromLocal() {
 }
 
 /**
- * Gera o item XML para um produto
- */
-function generateProductItem(product) {
-  const id = product.id || product.slug || product.sku
-  const title = escapeXml(product.name || 'Produto sem nome')
-  const description = stripHtml(product.description || product.shortDescription || product.longDescription || '')
-  const link = `${SITE_URL}/produto/${product.slug || id}`
-  const imageLink = resolveImageUrl(product)
-  const price = formatPrice(product.price, product.currency || 'BRL')
-  const availability = mapAvailability(product.availability, product.stock)
-  const condition = mapCondition(product.condition)
-  const brand = escapeXml(product.brand || product.brandName || 'Sem marca')
-  const gtin = product.gtin || product.ean || product.ean13 || ''
-  const mpn = product.mpn || product.sku || id
-  const category = escapeXml(product.category || '')
-  
-  // Google Shopping Category (usar categoria genérica brasileira)
-  const googleCategory = 'Materiais de Construção > Construção a Seco'
-  
-  // Shipping - frete grátis ou calculado
-  const shippingWeight = product.weight?.value || 1
-  const shippingWeightUnit = product.weight?.unit || 'kg'
-  
-  // Identificador_exists - indica se tem GTIN
-  const identifierExists = gtin ? 'yes' : 'no'
-  
-  // Limita descrição a 5000 caracteres (limite do Google)
-  const limitedDescription = description.substring(0, 5000) || title
-  
-  // Limita título a 150 caracteres (recomendação Google)
-  const limitedTitle = title.substring(0, 150)
-
-  return `    <item>
-      <g:id>${escapeXml(id)}</g:id>
-      <g:title>${limitedTitle}</g:title>
-      <g:description>${escapeXml(limitedDescription)}</g:description>
-      <g:link>${escapeXml(link)}</g:link>
-      <g:image_link>${escapeXml(imageLink)}</g:image_link>
-      <g:price>${price}</g:price>
-      <g:availability>${availability}</g:availability>
-      <g:condition>${condition}</g:condition>
-      <g:brand>${brand}</g:brand>
-      <g:identifier_exists>${identifierExists}</g:identifier_exists>${gtin ? `
-      <g:gtin>${escapeXml(gtin)}</g:gtin>` : ''}
-      <g:mpn>${escapeXml(mpn)}</g:mpn>${category ? `
-      <g:product_type>${category}</g:product_type>` : ''}
-      <g:google_product_category>${googleCategory}</g:google_product_category>
-      <g:shipping_weight>${shippingWeight} ${shippingWeightUnit}</g:shipping_weight>
-    </item>`
-}
-
-/**
  * Gera o feed XML completo
  */
 async function generateFeed() {
@@ -237,31 +73,34 @@ async function generateFeed() {
   if (products.length === 0) {
     console.warn('⚠️  Nenhum produto encontrado!')
   }
-  
-  // Filtra apenas produtos válidos (com preço e nome)
-  const validProducts = products.filter(p => p.price && p.name)
-  console.log(`✅ ${validProducts.length} produtos válidos`)
-  
-  // Gera os itens XML
-  const items = validProducts.map(generateProductItem).join('\n')
-  
-  // Monta o XML completo
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
-  <channel>
-    <title>Loja Fast - Feed de Produtos</title>
-    <link>${SITE_URL}</link>
-    <description>Feed de produtos para Google Merchant Center</description>
-${items}
-  </channel>
-</rss>`
-  
-  // Salva o arquivo
+
+  const feed = createMerchantFeed(products, {
+    siteUrl: process.env.VITE_SITE_URL || process.env.SITE_URL,
+    supabaseUrl: SUPABASE_URL,
+    supabaseBucket: SUPABASE_BUCKET,
+    defaultImageUrl: process.env.MERCHANT_DEFAULT_IMAGE_URL,
+    defaultShippingCountry: process.env.MERCHANT_DEFAULT_SHIPPING_COUNTRY,
+    defaultShippingService: process.env.MERCHANT_DEFAULT_SHIPPING_SERVICE,
+    defaultShippingPriceValue: process.env.MERCHANT_DEFAULT_SHIPPING_PRICE ?? process.env.VITE_DEFAULT_SHIPPING_PRICE,
+    quotePriceValue: process.env.MERCHANT_QUOTE_PRICE ?? process.env.VITE_QUOTE_PRICE,
+    quoteAvailability: process.env.MERCHANT_QUOTE_AVAILABILITY,
+    quoteLabel: process.env.MERCHANT_QUOTE_LABEL,
+    quoteLabelIndex: process.env.MERCHANT_QUOTE_LABEL_INDEX,
+  })
+
+  console.log(`✅ ${feed.stats.valid} produtos válidos (ignorados: ${feed.stats.skipped})`)
+
+  if (feed.warnings.length) {
+    for (const warning of feed.warnings) {
+      console.warn(`⚠️  [feed] ${warning.code}: ${warning.message}${warning.ref ? ` (${warning.ref})` : ''}`)
+    }
+  }
+
   const outputPath = path.join(__dirname, '../public/product-feed.xml')
-  fs.writeFileSync(outputPath, xml, 'utf-8')
-  
+  fs.writeFileSync(outputPath, feed.xml, 'utf-8')
+
   console.log(`✨ Feed gerado com sucesso: ${outputPath}`)
-  console.log(`🔗 URL do feed: ${SITE_URL}/product-feed.xml`)
+  console.log(`🔗 URL do feed: ${feed.settings.siteUrl}/product-feed.xml`)
 }
 
 // Executa
