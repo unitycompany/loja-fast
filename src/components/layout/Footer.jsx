@@ -5,6 +5,7 @@ import { fetchSecurity } from '../../services/securityService'
 import { resolveImageUrl } from '../../services/supabase'
 import ProductIcon from "../buttons/ProductIcon"
 import { At, AtIcon, PhoneCallIcon, WhatsappLogoIcon } from "@phosphor-icons/react/dist/ssr"
+import AlephsramosdevWidget from "../AlephsramosdevWidget"
 
 const Container = styled.footer`
     width: 100%;
@@ -285,9 +286,7 @@ export default function Footer({
                         </aside>
                     </Policy>      
                     <Dev>
-                        <span>
-                            Desenvolvido por <a href={devLink} target="_blank" rel="noopener noreferrer"><img src={devLogoUrl} alt={devName} /></a>
-                        </span>
+                        <AlephsramosdevWidget />
                     </Dev>          
                 </Infos>
             </Container>
