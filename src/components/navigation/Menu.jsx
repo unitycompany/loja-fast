@@ -295,7 +295,7 @@ export default function Menu({
                                             {(Array.isArray(category.children) ? category.children : []).map((child) => (
                                                 <li
                                                     key={child.id}
-                                                    onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(child.slug || category.slug)}`); onClose(); }}
+                                                    onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(category.slug)}&subcategory=${encodeURIComponent(child.slug)}`); onClose(); }}
                                                 >
                                                     {child.name}
                                                 </li>
@@ -315,7 +315,7 @@ export default function Menu({
                                             {(Array.isArray(selectedCategory.children) ? selectedCategory.children : []).map((child) => (
                                                 <li
                                                     key={child.id}
-                                                    onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(child.slug || selectedCategory.slug)}`); onClose(); }}
+                                                    onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(selectedCategory.slug)}&subcategory=${encodeURIComponent(child.slug)}`); onClose(); }}
                                                 >
                                                     {child.name}
                                                 </li>
