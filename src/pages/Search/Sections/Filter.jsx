@@ -364,6 +364,7 @@ export default function Filter({ open, setOpen }) {
             setSelectedCategory(null);
             setSelectedSubcategory(null);
             const params = new URLSearchParams(searchParams.toString())
+            params.delete('q')
             params.delete('category')
             params.delete('page')
             setSearchParams(params)
@@ -371,6 +372,7 @@ export default function Filter({ open, setOpen }) {
             setSelectedCategory(id);
             setSelectedSubcategory(null);
             const params = new URLSearchParams(searchParams.toString())
+            params.delete('q')
             if (slug) params.set('category', slug)
             else params.set('category', id)
             params.delete('page')
@@ -396,6 +398,7 @@ export default function Filter({ open, setOpen }) {
         if (!sub || clear) {
             setSelectedSubcategory(null)
             const params = new URLSearchParams(searchParams.toString())
+            params.delete('q')
             params.delete('subcategory')
             params.delete('page')
             setSearchParams(params)
@@ -407,6 +410,7 @@ export default function Filter({ open, setOpen }) {
         const next = selectedSubcategory === id ? null : id
         setSelectedSubcategory(next)
         const params = new URLSearchParams(searchParams.toString())
+        params.delete('q')
         if (next) params.set('subcategory', slug || id)
         else params.delete('subcategory')
         params.delete('page')

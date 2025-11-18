@@ -373,9 +373,11 @@ export default function SearchContainer({
                                 const q = inputValue.trim()
                                 const params = new URLSearchParams()
                                 if (q) params.set('q', q)
-                                // navigate to the search page route so the Search component renders (client-side)
-                                const href = q ? `/pesquisa?${params.toString()}` : '/pesquisa'
-                                navigate(href)
+                                const search = params.toString()
+                                navigate({
+                                    pathname: '/pesquisa',
+                                    search: search ? `?${search}` : ''
+                                })
                                 onClose()
                             }
                         }} />
@@ -387,10 +389,10 @@ export default function SearchContainer({
                         <Item>
                             <h2>Pesquise por</h2>
                             <ul className="search-list">
-                                <li onClick={() => { navigate('/pesquisa?q=Drywall'); onClose() }}>Drywall</li>
-                                <li onClick={() => { navigate('/pesquisa?q=Steel%20Frame'); onClose() }}>Steel Frame</li>
-                                <li onClick={() => { navigate('/pesquisa?q=Pisos%20vin%C3%ADlicos'); onClose() }}>Pisos vinílicos</li>
-                                <li onClick={() => { navigate('/pesquisa?q=Casas%20pr%C3%A9-fabricadas'); onClose() }}>Casas pré-fabricadas</li>
+                                <li onClick={() => { navigate({ pathname: '/pesquisa', search: '?q=Drywall' }); onClose() }}>Drywall</li>
+                                <li onClick={() => { navigate({ pathname: '/pesquisa', search: '?q=Steel%20Frame' }); onClose() }}>Steel Frame</li>
+                                <li onClick={() => { navigate({ pathname: '/pesquisa', search: '?q=Pisos%20vin%C3%ADlicos' }); onClose() }}>Pisos vinílicos</li>
+                                <li onClick={() => { navigate({ pathname: '/pesquisa', search: '?q=Casas%20pr%C3%A9-fabricadas' }); onClose() }}>Casas pré-fabricadas</li>
                             </ul>
                         </Item>
                         <Item>
@@ -411,7 +413,14 @@ export default function SearchContainer({
                                         (featuredBrands || []).map((brand) => (
                                             <li 
                                                 key={brand.id || brand.slug || brand.companyName}
-                                                onClick={() => { navigate(`/pesquisa?brand=${encodeURIComponent(brand.slug || brand.companyName || brand.id)}`); onClose() }}
+                                                onClick={() => { 
+                                                    const slug = encodeURIComponent(brand.slug || brand.companyName || brand.id)
+                                                    navigate({
+                                                        pathname: '/pesquisa',
+                                                        search: `?brand=${slug}`
+                                                    }); 
+                                                    onClose() 
+                                                }}
                                             >
                                                 <div>
                                                     { (brandImages[brand.id] || brand.imageCompany) ? (

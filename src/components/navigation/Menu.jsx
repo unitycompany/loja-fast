@@ -291,11 +291,23 @@ export default function Menu({
                                     {/* Sublist is always rendered; CSS controls visibility for smooth animation */}
                                     <aside className={`sublist ${openCategory === category.id ? 'open' : ''}`} aria-hidden={openCategory !== category.id}>
                                         <ul>
-                                            <li onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(category.slug)}`); onClose(); }}>Ver tudo</li>
+                                            <li onClick={() => { 
+                                                navigate({
+                                                    pathname: '/pesquisa',
+                                                    search: `category=${encodeURIComponent(category.slug)}`
+                                                }); 
+                                                onClose(); 
+                                            }}>Ver tudo</li>
                                             {(Array.isArray(category.children) ? category.children : []).map((child) => (
                                                 <li
                                                     key={child.id}
-                                                    onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(category.slug)}&subcategory=${encodeURIComponent(child.slug)}`); onClose(); }}
+                                                    onClick={() => { 
+                                                        navigate({
+                                                            pathname: '/pesquisa',
+                                                            search: `category=${encodeURIComponent(category.slug)}&subcategory=${encodeURIComponent(child.slug)}`
+                                                        });
+                                                        onClose(); 
+                                                    }}
                                                 >
                                                     {child.name}
                                                 </li>
@@ -311,11 +323,23 @@ export default function Menu({
                                     <span className="small-title">{selectedCategory.name}</span>
                                     <aside className={`sublist open`} aria-hidden={false}>
                                         <ul>
-                                            <li onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(selectedCategory.slug)}`); onClose(); }}>Ver tudo</li>
+                                            <li onClick={() => { 
+                                                navigate({
+                                                    pathname: '/pesquisa',
+                                                    search: `category=${encodeURIComponent(selectedCategory.slug)}`
+                                                });
+                                                onClose(); 
+                                            }}>Ver tudo</li>
                                             {(Array.isArray(selectedCategory.children) ? selectedCategory.children : []).map((child) => (
                                                 <li
                                                     key={child.id}
-                                                    onClick={() => { navigate(`/pesquisa?category=${encodeURIComponent(selectedCategory.slug)}&subcategory=${encodeURIComponent(child.slug)}`); onClose(); }}
+                                                    onClick={() => { 
+                                                        navigate({
+                                                            pathname: '/pesquisa',
+                                                            search: `category=${encodeURIComponent(selectedCategory.slug)}&subcategory=${encodeURIComponent(child.slug)}`
+                                                        });
+                                                        onClose(); 
+                                                    }}
                                                 >
                                                     {child.name}
                                                 </li>
