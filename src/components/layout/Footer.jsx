@@ -203,7 +203,7 @@ const Dev = styled.div`
 
 export default function Footer({
     mail = 'atendimento@fastsistemasconstrutivos.com.br',
-    phone = '+55 (21) 999288-2282',
+    phone = '+55 (21) 99288-2282',
     devName = 'aleph-desenvolvedor-web',
     devLogoUrl = 'https://imagedelivery.net/1n9Gwvykoj9c9m8C_4GsGA/c1fad5b2-b982-4cdf-a56a-97a1e7ed6d00/public',
     devLink = ''
