@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { fetchSecurity } from '../../services/securityService'
 import { resolveImageUrl } from '../../services/supabase'
 import ProductIcon from "../buttons/ProductIcon"
-import { At, AtIcon, PhoneCallIcon, WhatsappLogoIcon } from "@phosphor-icons/react/dist/ssr"
+import { At, AtIcon, PhoneCallIcon, WhatsappLogoIcon, InstagramLogo } from "@phosphor-icons/react/dist/ssr"
 import AlephsramosdevWidget from "../AlephsramosdevWidget"
 
 const Container = styled.footer`
@@ -270,6 +270,13 @@ export default function Footer({
                                     color="#ffffff"
                                 />
                                 <span>{mail}</span>
+                            </li>
+                            <li onClick={() => window.open('https://www.instagram.com/fastsistemasconstrutivo/', '_blank', 'noopener') }>
+                                <ProductIcon 
+                                    children={<InstagramLogo weight="thin"/>}
+                                    color="#ffffff"
+                                />
+                                <span>@fastsistemasconstrutivo</span>
                             </li>
                         </ul>
                     </Item>
