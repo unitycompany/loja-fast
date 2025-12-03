@@ -1,11 +1,9 @@
 import styled from "styled-components"
 
-import { useEffect, useState } from 'react'
-import { fetchSecurity } from '../../services/securityService'
-import { resolveImageUrl } from '../../services/supabase'
 import ProductIcon from "../buttons/ProductIcon"
-import { At, AtIcon, PhoneCallIcon, WhatsappLogoIcon, InstagramLogo } from "@phosphor-icons/react/dist/ssr"
+import { AtIcon, PhoneCallIcon, WhatsappLogoIcon, InstagramLogo, FacebookLogo } from "@phosphor-icons/react/dist/ssr"
 import AlephsramosdevWidget from "../AlephsramosdevWidget"
+import brandLogo from '../../assets/logotipo-fastsistemasconstrutivos-colours.svg'
 
 const Container = styled.footer`
     width: 100%;
@@ -50,26 +48,43 @@ const Infos = styled.div`
     }
 `
 
-const Item = styled.div`
+const BrandPanel = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    gap: 18px;
+    gap: 12px;
+    max-width: 480px;
 
-    &:last-child {
-        @media (max-width: 768px) {
-            & ul {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            & li {
-                padding-right: 0;
-                box-shadow: none;
-            }
-        }
+    @media (max-width: 768px) {
+        width: 100%;
     }
+`
+
+const BrandLogoImage = styled.img`
+    width: 56px;
+    height: auto;
+    object-fit: contain;
+`
+
+const BrandTagline = styled.p`
+    margin: 0;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--color--gray-6);
+    line-height: 1.4;
+
+    @media (max-width: 768px) {
+        font-size: 14px;
+    }
+`
+
+const ContactsPanel = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 16px;
 
     & h2 {
         font-size: 20px;
@@ -80,52 +95,34 @@ const Item = styled.div`
             font-size: 18px;
         }
     }
+`
 
-    & ul {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        flex-direction: row;
+const ContactBadges = styled.ul`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    @media (max-width: 768px) {
         width: 100%;
-        gap: 12px;
+    }
+`
 
-        & li {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: row;
-            gap: 6px;
-            cursor: pointer;
-            padding-right: 12px;
-            box-shadow: var(--border-right);
+const ContactBadge = styled.li`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 200ms ease, color 200ms ease;
 
-            @media (max-width: 768px) {
-                gap: 12px;
-            }
-
-            &:last-child {
-                box-shadow: none;
-                padding-right: 0;
-            }
-
-            & img {
-                width: 100px;
-                height: auto;
-                object-fit: contain;
-                object-position: center;
-                cursor: default;
-            }
-
-            & span {
-                font-size: 16px;
-                font-weight: 400;
-                color: var(--color--gray-6);
-
-                @media (max-width: 768px) {
-                    font-size: 14px;
-                }
-            }
-        }
+    &:hover,
+    &:focus-visible {
+        background-color: rgba(255, 255, 255, 0.08);
     }
 `
 
@@ -204,82 +201,82 @@ const Dev = styled.div`
 export default function Footer({
     mail = 'atendimento@fastsistemasconstrutivos.com.br',
     phone = '+55 (21) 99288-2282',
+    instagramUrl = 'https://www.instagram.com/fastsistemasconstrutivo/',
+    facebookUrl = 'https://www.facebook.com/fastsistemasconstrutivo',
+    brandName = 'Fast Sistemas Construtivos',
+    brandLogoSrc = brandLogo,
+    brandSlogan = 'Light Steel Frame e Drywall • Soluções Acústicas e Casas Pré-Fabricadas',
     devName = 'aleph-desenvolvedor-web',
     devLogoUrl = 'https://imagedelivery.net/1n9Gwvykoj9c9m8C_4GsGA/c1fad5b2-b982-4cdf-a56a-97a1e7ed6d00/public',
     devLink = ''
 }) {
-    const [security, setSecurity] = useState([])
+    const numericPhone = phone.replace(/\D/g, '')
+    const whatsappLink = `https://wa.me/${numericPhone}`
+    const telLink = `tel:+${numericPhone}`
 
-    useEffect(() => {
-        let mounted = true
-        fetchSecurity().then(s => { if (mounted) setSecurity(s) }).catch(console.error)
-        return () => { mounted = false }
-    }, [])
-    const [imageMap, setImageMap] = useState({})
-
-    useEffect(() => {
-        let mounted = true
-        async function load() {
-            const map = {}
-            await Promise.all((security || []).map(async (s, idx) => {
-                try {
-                    map[idx] = await resolveImageUrl(s.image)
-                } catch (e) {
-                    map[idx] = s.image
-                }
-            }))
-            if (mounted) setImageMap(map)
+    const contactItems = [
+        {
+            key: 'instagram',
+            label: 'Instagram',
+            action: () => window.open(instagramUrl, '_blank', 'noopener,noreferrer'),
+            icon: <InstagramLogo weight="thin" />
+        },
+        {
+            key: 'whatsapp',
+            label: 'WhatsApp',
+            action: () => window.open(whatsappLink, '_blank', 'noopener,noreferrer'),
+            icon: <WhatsappLogoIcon weight="thin" />
+        },
+        {
+            key: 'phone',
+            label: 'Telefone',
+            action: () => { window.location.href = telLink },
+            icon: <PhoneCallIcon weight="thin" />
+        },
+        {
+            key: 'email',
+            label: 'Email',
+            action: () => { window.location.href = `mailto:${mail}` },
+            icon: <AtIcon weight="thin" />
         }
-        if ((security || []).length) load()
-        return () => { mounted = false }
-    }, [security])
+        // {
+        //     key: 'facebook',
+        //     label: 'Facebook',
+        //     action: () => window.open(facebookUrl, '_blank', 'noopener,noreferrer'),
+        //     icon: <FacebookLogo weight="thin" />
+        // }
+    ]
 
     return (
         <>
             <Container>
                 <Infos>
-                    <Item>
-                        <h2>Segurança</h2>
-                        <ul>
-                            {
-                                (security || []).map((s, index) => (
-                                    <li key={index}>
-                                        <img src={imageMap[index] || s.image} alt={s.name} />
-                                    </li>
-                                ))
-                            }
-                        </ul>
-                    </Item>
-                    <Item>
-                        <h2>Fale com o time de Televendas</h2>
-                        <ul>
-                            <li onClick={() => window.location.href = `https://wa.me/${phone.replace(/\D/g, '')}`}>
-                                <ProductIcon 
-                                    children={<PhoneCallIcon weight="thin"/>}
-                                    color="#ffffff"
-                                />
-                                <ProductIcon 
-                                    children={<WhatsappLogoIcon weight="thin"/>}
-                                    color="#ffffff"
-                                />
-                                <span>{phone}</span>
-                            </li>
-                            <li onClick={() => window.location.href = `mailto:${mail}`}>
-                                <ProductIcon 
-                                    children={<AtIcon weight="thin"/>}
-                                    color="#ffffff"
-                                />
-                                <span>{mail}</span>
-                            </li>
-                            <li onClick={() => window.open('https://www.instagram.com/fastsistemasconstrutivo/', '_blank', 'noopener') }>
-                                <ProductIcon 
-                                    children={<InstagramLogo weight="thin"/>}
-                                    color="#ffffff"
-                                />
-                                <span>@fastsistemasconstrutivo</span>
-                            </li>
-                        </ul>
-                    </Item>
+                    <BrandPanel>
+                        <BrandLogoImage src={brandLogoSrc} alt={`${brandName} logo`} loading="lazy" />
+                        <BrandTagline>{brandSlogan}</BrandTagline>
+                    </BrandPanel>
+                    <ContactsPanel>
+                        <h2>Contatos</h2>
+                        <ContactBadges>
+                            {contactItems.map((item) => (
+                                <ContactBadge
+                                    key={item.key}
+                                    onClick={item.action}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter' || event.key === ' ') item.action()
+                                    }}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`Abrir ${item.label}`}
+                                >
+                                    <ProductIcon
+                                        children={item.icon}
+                                        color="#ffffff"
+                                    />
+                                </ContactBadge>
+                            ))}
+                        </ContactBadges>
+                    </ContactsPanel>
                 </Infos>
                 <Infos>
                     <Policy>
