@@ -53,8 +53,7 @@ const Container = styled.div`
 
 const Image = styled.div`
     width: 100%;
-    height: var(--product-card-image-height);
-    min-height: var(--product-card-image-height);
+    height: 260px;
     position: relative;
     cursor: pointer;
     display: flex;
