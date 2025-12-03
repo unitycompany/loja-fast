@@ -431,7 +431,9 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
   const { items } = useCart()
   const { utm } = useUTM()
   const [submitting, setSubmitting] = useState(false)
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm({
+    mode: 'onChange'
+  })
 
   useEffect(() => {
     if (typeof document === 'undefined') return undefined
@@ -581,7 +583,7 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
           )}
 
           <SectionTitle>Seus Dados</SectionTitle>
-          <Form id="contactForm" onSubmit={handleSubmit(onSubmit)}>
+          <Form id="contactForm" noValidate onSubmit={handleSubmit(onSubmit)}>
             <div className="form-group">
               <label htmlFor="name">Nome completo *</label>
               <input
@@ -640,7 +642,7 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
             </div>
 
             <div className="actions">
-              <button type="submit" className="submit" disabled={submitting}>
+              <button type="submit" className="submit" disabled={!isValid || submitting}>
                 {submitting ? '⏳ Enviando...' : 'Solicitar Orçamento'}
               </button>
             </div>
