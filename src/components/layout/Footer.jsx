@@ -290,7 +290,6 @@ export default function Footer({
                         </aside>
                     </Policy>      
                     <Dev>
-                        <AlephsramosdevWidget />
                     </Dev>          
                 </Infos>
             </Container>
