@@ -3,10 +3,15 @@
  * targetId: 'cart-button' | 'wishlist-button' (or any element id in header)
  * Options: { imageSrc, size, duration, curvature }
  */
-export function flyToTarget(sourceEl, targetId = 'cart-button', { imageSrc = null, size, duration = 650, curvature = 0.18 } = {}) {
+export function flyToTarget(sourceEl, targetId = 'cart-button', { imageSrc = null, size, duration = 2600, curvature = 0.18 } = {}) {
   try {
     const targetBtn = document.getElementById(targetId)
     if (!targetBtn || !sourceEl) return
+
+    // Respect reduced motion preferences
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    } catch {}
 
     const srcRect = sourceEl.getBoundingClientRect()
     const dstRect = targetBtn.getBoundingClientRect()
@@ -53,29 +58,29 @@ export function flyToTarget(sourceEl, targetId = 'cart-button', { imageSrc = nul
     const keyframes = [
       {
         transform: 'translate3d(0,0,0) scale(1)',
-        opacity: 0.95,
+        opacity: 0.98,
         filter: 'saturate(1)'
       },
       {
-        transform: `translate3d(${midX - startX}px, ${midY - startY}px, 0) scale(0.9)`,
-        opacity: 0.85,
-        offset: 0.6
+        transform: `translate3d(${midX - startX}px, ${midY - startY}px, 0) scale(0.92)`,
+        opacity: 0.9,
+        offset: 0.55
       },
       {
-        transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.65)`,
-        opacity: 0.1,
-        filter: 'saturate(0.8)'
+        transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.75)`,
+        opacity: 0.42,
+        filter: 'saturate(0.85)'
       }
     ]
 
     // Prefer WAAPI if available for better timing control
     if (el.animate) {
-      el.animate(keyframes, { duration, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' })
+      el.animate(keyframes, { duration, easing: 'cubic-bezier(0.2, 0.9, 0.2, 1)', fill: 'forwards' })
     } else {
       // fallback single transform
       requestAnimationFrame(() => {
-        el.style.transform = `translate3d(${dx}px, ${dy - 20}px, 0) scale(0.7)`
-        el.style.opacity = '0.2'
+        el.style.transform = `translate3d(${dx}px, ${dy - 20}px, 0) scale(0.78)`
+        el.style.opacity = '0.25'
       })
     }
 

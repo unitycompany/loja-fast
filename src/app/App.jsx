@@ -12,6 +12,7 @@ import Cart from "../pages/Cart/Cart";
 import WhishList from "../pages/Whishlist/WhishList";
 import Admin from "../pages/Admin";
 import { UTMProvider } from "../contexts/UTMContext";
+import CartPreviewDrawer from "../components/cart/CartPreviewDrawer";
 
 function AppShell() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function AppShell() {
   return (
     <>
       {!hideLayoutChrome && <Header />}
+      {!hideLayoutChrome && <CartPreviewDrawer />}
       <Page key={location.pathname}>
         <Routes>
           <Route path="/" element={<Home />} />
