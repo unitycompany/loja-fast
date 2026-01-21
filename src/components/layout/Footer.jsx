@@ -173,6 +173,42 @@ const Policy = styled.div`
                 font-size: 12px;
             }
         }
+
+        & .policy-actions {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+
+            & span {
+                font-size: 11px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--color--gray-4);
+            }
+
+            & a {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.18);
+                color: #fff;
+                font-weight: 600;
+                text-decoration: none;
+                transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+
+                &:hover,
+                &:focus-visible {
+                    background: rgba(255, 255, 255, 0.28);
+                    transform: translateY(-1px);
+                    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+                }
+            }
+        }
     }
 `
 
@@ -287,6 +323,16 @@ export default function Footer({
                         <aside>
                             <p>Fast Drywall Franchising Ltda | CNPJ 40.436.034/0001-48</p>
                             <p>R. Equador, 43 - Bl 3 Sala 720 - Santo Cristo - Rio de Janeiro - RJ - CEP 20220-410</p>
+                            <div className="policy-actions">
+                                <span>Políticas</span>
+                                <a
+                                    href="https://fastsistemasconstrutivos.com.br/politica-de-privacidade/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Política de Privacidade
+                                </a>
+                            </div>
                         </aside>
                     </Policy>      
                     <Dev>

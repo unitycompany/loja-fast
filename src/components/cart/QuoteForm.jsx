@@ -641,6 +641,19 @@ export default function QuoteForm({ open, onClose, itemsOverride }){
               {errors.confirmo && <div className="error">É necessário confirmar para enviar o orçamento</div>}
             </div>
 
+            <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  {...register('privacy', { required: true })}
+                />
+                <p>
+                  Li e concordo com a <a href="https://fastsistemasconstrutivos.com.br/politica-de-privacidade/" target="_blank" rel="noreferrer">Política de Privacidade</a>.
+                </p>
+              </label>
+              {errors.privacy && <div className="error">É necessário concordar com a política de privacidade</div>}
+            </div>
+
             <div className="actions">
               <button type="submit" className="submit" disabled={!isValid || submitting}>
                 {submitting ? '⏳ Enviando...' : 'Solicitar Orçamento'}

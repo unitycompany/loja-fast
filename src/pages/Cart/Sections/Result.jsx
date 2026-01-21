@@ -79,37 +79,55 @@ const Resume = styled.div`
 
 `
 
+const AlertSection = styled.div`
+    width: 100%;
+    padding: 0 2.5%;
+`
+
 const Alert = styled.div`
     width: 100%;
-    padding: 12px 2.5%;
-    background-color: #FFA500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 14px 16px;
+    background-color: #ffedd5;
+    border: 1px solid #fdba74;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    align-items: start;
     gap: 12px;
-
-    @media (max-width: 768px) {
-        padding: 12px 2.5%;    
-    }
 
     & p {
         margin: 0;
         font-size: 14px;
-        line-height: 1.2;
+        line-height: 1.35;
+        color: var(--color--black-3);
 
         & strong {
-            font-weight: 500;
-            text-decoration: underline;
+            font-weight: 600;
+            text-decoration: none;
         }
+    }
+
+    & a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        color: #7c2d12;
+        text-decoration: underline;
     }
 
     & svg {
-        font-size: 40px;
-
-        @media (max-width: 768px) {
-            font-size: 62px;    
-        }
+        font-size: 30px;
+        color: #b45309;
     }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 28px 1fr;
+    }
+`
+
+const AlertActions = styled.div`
+    margin-top: 8px;
 `
 
 const Button = styled.div`
@@ -157,14 +175,27 @@ export default function Result({
                         <span><b>a partir de</b> {formatCurrency(totalPrice)}</span>
                     </div>
                 </Resume>
-                <Button>
+                <AlertSection>
                     <Alert>
                         <WarningIcon />
-                        <p>
-                            Os valores exibidos nesta página <strong><i>são apenas uma referência</i></strong> e podem variar conforme a <strong>praça</strong>, o <strong>frete</strong>, as <strong>taxas</strong> e as <strong>demais condições comerciais.</strong> <br />
-                            Ao solicitar um orçamento, você confirma que <strong><i>não está realizando uma compra</i></strong>, e que o valor final será informado pela equipe de Vendas da FAST.
-                        </p>
+                        <div>
+                            <p>
+                                Os valores exibidos nesta página <strong><i>são apenas uma referência</i></strong> e podem variar conforme a <strong>praça</strong>, o <strong>frete</strong>, as <strong>taxas</strong> e as <strong>demais condições comerciais.</strong> <br />
+                                Ao solicitar um orçamento, você confirma que <strong><i>não está realizando uma compra</i></strong>, e que o valor final será informado pela equipe de Vendas da FAST.
+                            </p>
+                            <AlertActions>
+                                <a
+                                    href="https://fastsistemasconstrutivos.com.br/politica-de-privacidade/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Política de Privacidade
+                                </a>
+                            </AlertActions>
+                        </div>
                     </Alert>
+                </AlertSection>
+                <Button>
                     <button onClick={() => setQuoteOpen(true)}>Solicitar Orçamento</button>
                 </Button>
                 <QuoteForm open={quoteOpen} onClose={() => setQuoteOpen(false)} />
